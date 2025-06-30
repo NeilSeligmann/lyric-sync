@@ -215,6 +215,10 @@ export const GET: RequestHandler = async () => {
             };
           });
 
+          // Log first 10 plexTracks raw
+          logger.info(`plexTracks raw`);
+          logger.info(JSON.stringify(plexTracks.slice(0, 10), null, 2));
+
           logger.info(`plexTracks count: ${plexTracks.length}`);
 
           // if uuid in albumTracks doesn't exist in plexAlbumTracks
