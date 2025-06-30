@@ -67,6 +67,9 @@ export async function processSyncTracks(
       syncProgressManager.updateProgress(progressId, { status: 'running' });
     }
 
+    let processedCount = 0;
+    let errorCount = 0;
+
     for (const trackData of tracksToProcess) {
       const syncTrackResponse: SyncTrackResponse = {
         synced: false,
@@ -112,12 +115,19 @@ export async function processSyncTracks(
           await markTrackAsSyncedWithDetails(trackData.uuid, library, false, syncTrackResponse.message);
         }
       } catch (error: unknown) {
+        errorCount++;
         if (error instanceof Error) {
           syncTrackResponse.message = error.message;
           syncTrackResponse.stack = error.stack;
+          logger.error(`Error processing track ${trackData.title}: ${error.message}`);
+        } else {
+          syncTrackResponse.message = 'Unknown error occurred';
+          logger.error(`Unknown error processing track ${trackData.title}:`, error);
         }
         await markTrackAsSyncedWithDetails(trackData.uuid, library, false, syncTrackResponse.message);
       }
+
+      processedCount++;
 
       // Update progress if we have a progress ID
       if (progressId) {
@@ -133,10 +143,17 @@ export async function processSyncTracks(
       logger.info(`Sync completed. Progress ID: ${progressId}, Synced: ${progress?.syncedTracks}, Failed: ${progress?.failedTracks}, Total: ${progress?.totalTracks}`);
     }
 
+    // Log summary
+    logger.info(`Sync process finished for library ${library}. Processed: ${processedCount}, Errors: ${errorCount}`);
+
   } catch (error) {
-    logger.error(`Error during sync process for library ${library}:`, error);
+    logger.error(`Critical error during sync process for library ${library}:`);
+    logger.error(error);
     if (progressId) {
       syncProgressManager.completeProgress(progressId, 'failed');
     }
+
+    // Re-throw the error to let the caller handle it
+    throw error;
   }
 } 

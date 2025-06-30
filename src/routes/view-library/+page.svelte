@@ -1,6 +1,5 @@
 <script lang="ts">
   import ArtistCard from "$lib/components/ArtistCard.svelte";
-  import SyncProgressBar from "$lib/components/SyncProgressBar.svelte";
   import SyncDashboard from "$lib/components/SyncDashboard.svelte";
   import ArtistSearch from "$lib/components/ArtistSearch.svelte";
   import type { ArtistWithAlbumCount } from "$lib/types";
@@ -58,7 +57,7 @@
         if (result.message === "Bulk sync started") {
           toast.create({
             title: "Sync Started",
-            description: `Started syncing ${result.totalTracks} tracks. Progress will be shown below.`,
+            description: `Started syncing ${result.totalTracks} tracks. Progress will be shown in the dashboard.`,
             type: "info",
           });
         } else {
@@ -101,10 +100,7 @@
 </script>
 
 <div class="px-5 py-1">
-  <!-- Progress Bar - shows current sync progress -->
-  <SyncProgressBar libraryId={currentLibrary.uuid} />
-  
-  <!-- Sync Dashboard - shows statistics and manual controls -->
+  <!-- Sync Dashboard - shows progress, statistics and manual controls -->
   <div class="mb-6">
     <SyncDashboard library={currentLibrary} />
   </div>
