@@ -20,7 +20,16 @@ export const POST: RequestHandler = async ({ request }) => {
     track: InferredSelectTrackSchema;
   } = await request.json();
 
-  const lrcGetUrl: string = `${LrcLibApi}artist_name=${encodeURIComponent(artistName)}&track_name=${encodeURIComponent(track.title)}&album_name=${encodeURIComponent(albumName)}&duration=${track.duration / 1000}`;
+  // Validate inputs
+  if (!library || !track?.uuid || !track?.title || !artistName || !albumName || !track?.duration || isNaN(track.duration) || !isFinite(track.duration)) {
+    const errorMsg = `Invalid request data: library=${library}, track.uuid=${track?.uuid}, track.title=${track?.title}, artistName=${artistName}, albumName=${albumName}, duration=${track?.duration}`;
+    logger.error(errorMsg);
+    syncTrackResponse.message = errorMsg;
+    return new Response(JSON.stringify(syncTrackResponse));
+  }
+
+  const durationInSeconds = Math.floor(track.duration / 1000);
+  const lrcGetUrl: string = `${LrcLibApi}artist_name=${encodeURIComponent(artistName)}&track_name=${encodeURIComponent(track.title)}&album_name=${encodeURIComponent(albumName)}&duration=${durationInSeconds}`;
 
   const lyricResponse: Response = await fetch(lrcGetUrl);
 

@@ -2,7 +2,7 @@ import type { AlbumWithTrackCount, ArtistWithAlbumCount, InferredInsertLibrarySc
 
 import { logger } from "$lib/logger";
 import { albums, artists, libraries, tracks } from "$lib/schema";
-import { and, asc, eq, getTableColumns, sql, type SQL } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, or, sql, type SQL } from "drizzle-orm";
 
 import db from ".";
 
@@ -188,37 +188,73 @@ export async function markTrackAsSyncedWithDetails(
   success: boolean = true, 
   failureReason?: string
 ): Promise<Array<InferredSelectTrackSchema>> {
+  // Validate inputs
+  if (!trackUUID || !libraryUUID) {
+    logger.error(`Invalid parameters: trackUUID=${trackUUID}, libraryUUID=${libraryUUID}`);
+    throw new Error('Invalid track UUID or library UUID provided');
+  }
+
   const now = new Date();
-  const updateData: any = { 
-    synced: success,
-    lastSyncAttempt: now,
-    retryCount: 0,
-    nextRetryAt: null
-  };
-
-  if (!success && failureReason) {
-    updateData.syncFailureReason = failureReason;
-    updateData.retryCount = sql`${tracks.retryCount} + 1`;
-    // Set next retry time based on retry count (exponential backoff)
-    const retryDelay = Math.min(Math.pow(2, updateData.retryCount) * 60 * 60 * 1000, 24 * 60 * 60 * 1000); // Max 24 hours
-    updateData.nextRetryAt = new Date(now.getTime() + retryDelay);
-  } else if (success) {
-    updateData.syncFailureReason = null;
-  }
-
-  logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as ${success ? 'SYNCED' : 'FAILED'}`);
   
-  const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
-    .set(updateData)
-    .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
-    .returning();
+  if (!success && failureReason) {
+    // First, get the current retry count to calculate the next retry time
+    const currentTrack = await db.select({ retryCount: tracks.retryCount })
+      .from(tracks)
+      .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
+      .limit(1);
+    
+    const currentRetryCount = currentTrack[0]?.retryCount ?? 0;
+    const newRetryCount = currentRetryCount + 1;
+    
+    // Calculate retry delay with exponential backoff (max 24 hours)
+    const retryDelay = Math.min(Math.pow(2, newRetryCount) * 60 * 60 * 1000, 24 * 60 * 60 * 1000);
+    const nextRetryAt = new Date(now.getTime() + retryDelay);
+    
+    const updateData = {
+      synced: false,
+      lastSyncAttempt: now,
+      syncFailureReason: failureReason,
+      retryCount: newRetryCount,
+      nextRetryAt: nextRetryAt
+    };
 
-  if (returnedTrack) {
-    logger.info(`Track: ${trackUUID} in library: ${libraryUUID} ${success ? 'SYNCED' : 'FAILED'}`);
-    logger.debug(returnedTrack);
+    logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as FAILED (retry ${newRetryCount})`);
+    
+    const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
+      .set(updateData)
+      .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
+      .returning();
+
+    if (returnedTrack) {
+      logger.info(`Track: ${trackUUID} in library: ${libraryUUID} FAILED`);
+      logger.debug(returnedTrack);
+    }
+
+    return returnedTrack;
+  } else {
+    // Success case - reset retry count and clear failure info
+    const updateData = {
+      synced: true,
+      lastSyncAttempt: now,
+      syncFailureReason: null,
+      retryCount: 0,
+      nextRetryAt: null
+    };
+
+    logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as SYNCED`);
+    
+    const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
+      .set(updateData)
+      .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
+      .returning();
+
+    if (returnedTrack) {
+      logger.info(`Track: ${trackUUID} in library: ${libraryUUID} SYNCED`);
+      logger.debug(returnedTrack);
+    }
+
+    return returnedTrack;
   }
-
-  return returnedTrack;
 };
 
 export async function getFailedTracksReadyForRetry(libraryUUID: string): Promise<Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>> {
@@ -256,7 +292,10 @@ export async function getFailedTracksReadyForRetry(libraryUUID: string): Promise
       and(
         eq(tracks.library, libraryUUID),
         eq(tracks.synced, false),
-        sql`${tracks.nextRetryAt} <= ${now.getTime()}`,
+        or(
+          sql`${tracks.nextRetryAt} IS NULL`,
+          sql`${tracks.nextRetryAt} <= ${now.getTime()}`
+        ),
         sql`${tracks.retryCount} < 5` // Max 5 retries
       )
     )

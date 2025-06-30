@@ -77,9 +77,20 @@ export async function processSyncTracks(
         message: "",
       };
 
+      // Validate track data
+      if (!trackData.title || !trackData.uuid || !trackData.artistInfo?.title || !trackData.albumInfo?.title || !trackData.duration || isNaN(trackData.duration) || !isFinite(trackData.duration)) {
+        const errorMsg = `Invalid track data: title=${trackData.title}, uuid=${trackData.uuid}, artist=${trackData.artistInfo?.title}, album=${trackData.albumInfo?.title}, duration=${trackData.duration}`;
+        logger.error(errorMsg);
+        await markTrackAsSyncedWithDetails(trackData.uuid || 'unknown', library, false, errorMsg);
+        errorCount++;
+        processedCount++;
+        continue;
+      }
+
       try {
         // Build the LRC API URL using the artist and album info
-        const lrcGetUrl: string = `${LrcLibApi}artist_name=${encodeURIComponent(trackData.artistInfo.title)}&track_name=${encodeURIComponent(trackData.title)}&album_name=${encodeURIComponent(trackData.albumInfo.title)}&duration=${trackData.duration / 1000}`;
+        const durationInSeconds = Math.floor(trackData.duration / 1000);
+        const lrcGetUrl: string = `${LrcLibApi}artist_name=${encodeURIComponent(trackData.artistInfo.title)}&track_name=${encodeURIComponent(trackData.title)}&album_name=${encodeURIComponent(trackData.albumInfo.title)}&duration=${durationInSeconds}`;
 
         logger.info(`Searching for lyrics: ${lrcGetUrl}`);
 
@@ -119,19 +130,19 @@ export async function processSyncTracks(
         if (error instanceof Error) {
           syncTrackResponse.message = error.message;
           syncTrackResponse.stack = error.stack;
-          logger.error(`Error processing track ${trackData.title}: ${error.message}`);
+          logger.error(`Error processing track ${trackData.title || 'unknown'}: ${error.message}`);
         } else {
           syncTrackResponse.message = 'Unknown error occurred';
-          logger.error(`Unknown error processing track ${trackData.title}:`, error);
+          logger.error(`Unknown error processing track ${trackData.title || 'unknown'}:`, error);
         }
-        await markTrackAsSyncedWithDetails(trackData.uuid, library, false, syncTrackResponse.message);
+        await markTrackAsSyncedWithDetails(trackData.uuid || 'unknown', library, false, syncTrackResponse.message);
       }
 
       processedCount++;
 
       // Update progress if we have a progress ID
       if (progressId) {
-        syncProgressManager.incrementProcessed(progressId, syncTrackResponse, trackData.title, trackData.artistInfo.title);
+        syncProgressManager.incrementProcessed(progressId, syncTrackResponse, trackData.title || 'unknown', trackData.artistInfo?.title || 'unknown');
       }
     }
 
