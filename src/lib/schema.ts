@@ -221,6 +221,12 @@ export const tracks = sqliteTable("tracks", {
   trackNumber: integer()
     .notNull()
     .default(0),
+  lastSyncAttempt: integer({ mode: "timestamp_ms" }),
+  syncFailureReason: text(),
+  retryCount: integer()
+    .default(0)
+    .notNull(),
+  nextRetryAt: integer({ mode: "timestamp_ms" }),
   createdAt: integer({ mode: "timestamp_ms" })
     .$default(() => new Date()),
   updatedAt: integer({ mode: "timestamp_ms" })

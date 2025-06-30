@@ -57,6 +57,13 @@
       "when": 1751309884082,
       "tag": "0007_safe_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1751321373967,
+      "tag": "0008_fat_ghost_rider",
+      "breakpoints": true
     }
   ]
 }

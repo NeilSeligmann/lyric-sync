@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArtistCard from "$lib/components/ArtistCard.svelte";
   import SyncProgressBar from "$lib/components/SyncProgressBar.svelte";
+  import SyncDashboard from "$lib/components/SyncDashboard.svelte";
   import { type ToastContext } from "@skeletonlabs/skeleton-svelte";
   import { invalidateAll } from "$app/navigation";
   import { Download } from "lucide-svelte";
@@ -94,6 +95,11 @@
 <div class="px-5 py-1">
   <!-- Progress Bar - shows current sync progress -->
   <SyncProgressBar libraryId={currentLibrary.uuid} />
+  
+  <!-- Sync Dashboard - shows statistics and manual controls -->
+  <div class="mb-6">
+    <SyncDashboard library={currentLibrary} />
+  </div>
   
   <!-- Sync Button - only show if there are unsynced tracks and no sync in progress -->
   {#if unsyncedCount > 0}

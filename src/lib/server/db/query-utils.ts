@@ -1,4 +1,4 @@
-import type { AlbumWithTrackCount, ArtistWithAlbumCount, InferredInsertLibrarySchema, InferredSelectAlbumSchema, InferredSelectArtistSchema, InferredSelectTrackSchema, LibraryItems } from "$lib/types";
+import type { AlbumWithTrackCount, ArtistWithAlbumCount, InferredInsertLibrarySchema, InferredSelectAlbumSchema, InferredSelectArtistSchema, InferredSelectLibrarySchema, InferredSelectTrackSchema, LibraryItems } from "$lib/types";
 
 import { logger } from "$lib/logger";
 import { albums, artists, libraries, tracks } from "$lib/schema";
@@ -178,4 +178,171 @@ export async function getUnsyncedTracksInLibrary(libraryUUID: string): Promise<A
   logger.debug(returnedTracks);
 
   return returnedTracks as Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>;
+};
+
+// New functions for enhanced sync tracking
+
+export async function markTrackAsSyncedWithDetails(
+  trackUUID: string, 
+  libraryUUID: string, 
+  success: boolean = true, 
+  failureReason?: string
+): Promise<Array<InferredSelectTrackSchema>> {
+  const now = new Date();
+  const updateData: any = { 
+    synced: success,
+    lastSyncAttempt: now,
+    retryCount: 0,
+    nextRetryAt: null
+  };
+
+  if (!success && failureReason) {
+    updateData.syncFailureReason = failureReason;
+    updateData.retryCount = sql`${tracks.retryCount} + 1`;
+    // Set next retry time based on retry count (exponential backoff)
+    const retryDelay = Math.min(Math.pow(2, updateData.retryCount) * 60 * 60 * 1000, 24 * 60 * 60 * 1000); // Max 24 hours
+    updateData.nextRetryAt = new Date(now.getTime() + retryDelay);
+  } else if (success) {
+    updateData.syncFailureReason = null;
+  }
+
+  logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as ${success ? 'SYNCED' : 'FAILED'}`);
+  
+  const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
+    .set(updateData)
+    .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
+    .returning();
+
+  if (returnedTrack) {
+    logger.info(`Track: ${trackUUID} in library: ${libraryUUID} ${success ? 'SYNCED' : 'FAILED'}`);
+    logger.debug(returnedTrack);
+  }
+
+  return returnedTrack;
+};
+
+export async function getFailedTracksReadyForRetry(libraryUUID: string): Promise<Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>> {
+  const now = new Date();
+  
+  const returnedTracks = await db.select({
+    ...getTableColumns(tracks),
+    artistInfo: {
+      title: artists.title,
+      uuid: artists.uuid,
+      image: artists.image,
+      key: artists.key,
+      synced: artists.synced,
+      library: artists.library,
+      summary: artists.summary,
+      createdAt: artists.createdAt,
+      updatedAt: artists.updatedAt,
+    },
+    albumInfo: {
+      title: albums.title,
+      uuid: albums.uuid,
+      image: albums.image,
+      key: albums.key,
+      synced: albums.synced,
+      library: albums.library,
+      artist: albums.artist,
+      summary: albums.summary,
+      createdAt: albums.createdAt,
+      updatedAt: albums.updatedAt,
+    },
+  }).from(tracks)
+    .innerJoin(artists, eq(tracks.artist, artists.uuid))
+    .innerJoin(albums, eq(tracks.album, albums.uuid))
+    .where(
+      and(
+        eq(tracks.library, libraryUUID),
+        eq(tracks.synced, false),
+        sql`${tracks.nextRetryAt} <= ${now.getTime()}`,
+        sql`${tracks.retryCount} < 5` // Max 5 retries
+      )
+    )
+    .orderBy(asc(tracks.title));
+
+  logger.info(`returning failed tracks ready for retry in library ${libraryUUID}, count: ${returnedTracks.length}`);
+  logger.debug(returnedTracks);
+
+  return returnedTracks as Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>;
+};
+
+export async function getNewTracksForSync(libraryUUID: string): Promise<Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>> {
+  const returnedTracks = await db.select({
+    ...getTableColumns(tracks),
+    artistInfo: {
+      title: artists.title,
+      uuid: artists.uuid,
+      image: artists.image,
+      key: artists.key,
+      synced: artists.synced,
+      library: artists.library,
+      summary: artists.summary,
+      createdAt: artists.createdAt,
+      updatedAt: artists.updatedAt,
+    },
+    albumInfo: {
+      title: albums.title,
+      uuid: albums.uuid,
+      image: albums.image,
+      key: albums.key,
+      synced: albums.synced,
+      library: albums.library,
+      artist: albums.artist,
+      summary: albums.summary,
+      createdAt: albums.createdAt,
+      updatedAt: albums.updatedAt,
+    },
+  }).from(tracks)
+    .innerJoin(artists, eq(tracks.artist, artists.uuid))
+    .innerJoin(albums, eq(tracks.album, albums.uuid))
+    .where(
+      and(
+        eq(tracks.library, libraryUUID),
+        eq(tracks.synced, false),
+        sql`${tracks.lastSyncAttempt} IS NULL` // Never attempted before
+      )
+    )
+    .orderBy(asc(tracks.title));
+
+  logger.info(`returning new tracks for sync in library ${libraryUUID}, count: ${returnedTracks.length}`);
+  logger.debug(returnedTracks);
+
+  return returnedTracks as Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>;
+};
+
+export async function getSyncStats(libraryUUID: string): Promise<{
+  totalTracks: number;
+  syncedTracks: number;
+  failedTracks: number;
+  pendingRetryTracks: number;
+  newTracks: number;
+}> {
+  const now = new Date();
+  
+  const stats = await db.select({
+    totalTracks: sql<number>`COUNT(*)`,
+    syncedTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 1 THEN 1 ELSE 0 END)`,
+    failedTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.lastSyncAttempt} IS NOT NULL THEN 1 ELSE 0 END)`,
+    pendingRetryTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.nextRetryAt} <= ${now.getTime()} AND ${tracks.retryCount} < 5 THEN 1 ELSE 0 END)`,
+    newTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.lastSyncAttempt} IS NULL THEN 1 ELSE 0 END)`,
+  }).from(tracks)
+    .where(eq(tracks.library, libraryUUID));
+
+  const result = stats[0];
+  logger.info(`Sync stats for library ${libraryUUID}:`, result);
+  
+  return result;
+};
+
+export async function getAllLibrariesInServer(): Promise<Array<InferredSelectLibrarySchema>> {
+  const returnedLibraries: Array<InferredSelectLibrarySchema> | undefined = await db.query.libraries.findMany({
+    orderBy: [asc(libraries.title)],
+  });
+
+  logger.info(`returning all libraries in server, count: ${returnedLibraries.length}`);
+  logger.debug(returnedLibraries);
+
+  return returnedLibraries;
 };

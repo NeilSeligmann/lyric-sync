@@ -115,3 +115,28 @@ export interface CheckTrackLyricsOnDiskResponse {
   message: string;
   stack?: string;
 }
+
+// New types for enhanced sync tracking
+export interface SyncStatus {
+  synced: boolean;
+  lastSyncAttempt?: Date;
+  syncFailureReason?: string;
+  retryCount: number;
+  nextRetryAt?: Date;
+}
+
+export interface TrackSyncResult {
+  trackId: string;
+  success: boolean;
+  message: string;
+  failureReason?: string;
+  retryCount: number;
+  nextRetryAt?: Date;
+}
+
+export interface BulkSyncResult {
+  totalTracks: number;
+  successfulTracks: number;
+  failedTracks: number;
+  results: TrackSyncResult[];
+}
