@@ -73,7 +73,7 @@
       </div>
       <div class="flex w-1/2 justify-end">
         <ProgressRing
-          value={Math.ceil((artist.albumsSynced / artist.totalAlbums) * 100)}
+          value={artist.totalAlbums > 0 ? Math.ceil((artist.albumsSynced / artist.totalAlbums) * 100) : 0}
           max={100}
           size="size-40"
         />
