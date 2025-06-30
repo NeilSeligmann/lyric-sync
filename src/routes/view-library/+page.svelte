@@ -1,5 +1,6 @@
 <script lang="ts">
   import ArtistCard from "$lib/components/ArtistCard.svelte";
+  import SyncProgressBar from "$lib/components/SyncProgressBar.svelte";
   import { type ToastContext } from "@skeletonlabs/skeleton-svelte";
   import { invalidateAll } from "$app/navigation";
   import { Download } from "lucide-svelte";
@@ -45,28 +46,39 @@
 
       if (response.ok) {
         const result = await response.json();
-        const { syncedTracks, failedTracks, totalTracks } = result.summary;
         
+        if (result.message === "Bulk sync started") {
+          toast.create({
+            title: "Sync Started",
+            description: `Started syncing ${result.totalTracks} tracks. Progress will be shown below.`,
+            type: "info",
+          });
+        } else {
+          toast.create({
+            title: "No Tracks to Sync",
+            description: result.message,
+            type: "info",
+          });
+        }
+      } else if (response.status === 409) {
+        const error = await response.json();
         toast.create({
-          title: "Bulk Sync Complete",
-          description: `Successfully synced ${syncedTracks} tracks. ${failedTracks} tracks failed.`,
-          type: syncedTracks > 0 ? "success" : "error",
+          title: "Sync Already Running",
+          description: "A sync operation is already in progress for this library.",
+          type: "info",
         });
-        
-        // Refresh the page to show updated sync status
-        await invalidateAll();
       } else {
         const error = await response.json();
         toast.create({
           title: "Sync Failed",
-          description: error.error || "An error occurred during bulk sync",
+          description: error.error || "An error occurred starting the bulk sync",
           type: "error",
         });
       }
     } catch (error) {
       toast.create({
         title: "Sync Failed",
-        description: "An error occurred during bulk sync",
+        description: "An error occurred starting the bulk sync",
         type: "error",
       });
     } finally {
@@ -83,21 +95,27 @@
 </script>
 
 <div class="px-5 py-1">
-  {#if data.currentLibrary && unsyncedCount > 0}
-    <div class="mb-4 flex justify-between items-center">
-      <div class="text-lg font-semibold">
-        {unsyncedCount} tracks missing lyrics
+  {#if data.currentLibrary}
+    <!-- Progress Bar - shows current sync progress -->
+    <SyncProgressBar libraryId={data.currentLibrary.uuid} />
+    
+    <!-- Sync Button - only show if there are unsynced tracks and no sync in progress -->
+    {#if unsyncedCount > 0}
+      <div class="mb-4 flex justify-between items-center">
+        <div class="text-lg font-semibold">
+          {unsyncedCount} tracks missing lyrics
+        </div>
+        <button
+          type="button"
+          class="btn preset-filled-primary-500"
+          disabled={syncing}
+          on:click={syncAllMissingTracks}
+        >
+          <Download class="size-4" />
+          {syncing ? "Starting Sync..." : "Sync All Missing Tracks"}
+        </button>
       </div>
-      <button
-        type="button"
-        class="btn preset-filled-primary-500"
-        disabled={syncing}
-        onclick={syncAllMissingTracks}
-      >
-        <Download class="size-4" />
-        {syncing ? "Syncing..." : "Sync All Missing Tracks"}
-      </button>
-    </div>
+    {/if}
   {/if}
   
   <div class="grid lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
