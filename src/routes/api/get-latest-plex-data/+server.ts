@@ -123,7 +123,7 @@ export const GET: RequestHandler = async () => {
             };
           });
 
-          logger.info("plexArtists count", plexArtists.length);
+          logger.info(`plexArtists count: ${plexArtists.length}`);
 
           // if uuid in libaryArtists doesn't exist in plexLibraryArtists
           // delete it
@@ -168,7 +168,7 @@ export const GET: RequestHandler = async () => {
             };
           });
 
-          logger.info("plexAlbums count", plexAlbums.length);
+          logger.info(`plexAlbums count: ${plexAlbums.length}`);
 
           // if uuid in artistAlbums doesn't exist in plexArtistsAlbums
           // delete it
@@ -215,7 +215,7 @@ export const GET: RequestHandler = async () => {
             };
           });
 
-          logger.info("plexTracks count", plexTracks.length);
+          logger.info(`plexTracks count: ${plexTracks.length}`);
 
           // if uuid in albumTracks doesn't exist in plexAlbumTracks
           // delete it
@@ -238,53 +238,72 @@ export const GET: RequestHandler = async () => {
       // TODO: only update artists/albums in the db that actually differ from what plex has
       // instead of upserting everything everytime
 
-      // now we can just upsert the artists returned from plex
-      const updatedArtists: Array<InferredSelectArtistSchema> = await db.insert(artists).values(plexLibraryArtists).onConflictDoUpdate({
-        target: artists.uuid,
-        set: {
-          title: sql.raw(`excluded.${toSnakeCase(artists.title.name)}`),
-          image: sql.raw(`excluded.${toSnakeCase(artists.image.name)}`),
-          key: sql.raw(`excluded.${toSnakeCase(artists.key.name)}`),
-          library: sql.raw(`excluded.${toSnakeCase(artists.library.name)}`),
-          summary: sql.raw(`excluded.${toSnakeCase(artists.summary.name)}`),
-        },
-      }).returning();
+      logger.info(`Updating db with latest data from plex for library: ${currentLibrary?.uuid}`);
 
-      logger.info(`Artists updated for library: ${currentLibrary.uuid}`);
-      logger.debug(updatedArtists);
+      // Upsert artists in chunks to avoid overwhelming SQLite
+      const CHUNK_SIZE = 100;
+      const updatedArtists: Array<InferredSelectArtistSchema> = [];
+      
+      for (let i = 0; i < plexLibraryArtists.length; i += CHUNK_SIZE) {
+        const chunk = plexLibraryArtists.slice(i, i + CHUNK_SIZE);
+        const chunkResult = await db.insert(artists).values(chunk).onConflictDoUpdate({
+          target: artists.uuid,
+          set: {
+            title: sql.raw(`excluded.${toSnakeCase(artists.title.name)}`),
+            image: sql.raw(`excluded.${toSnakeCase(artists.image.name)}`),
+            key: sql.raw(`excluded.${toSnakeCase(artists.key.name)}`),
+            library: sql.raw(`excluded.${toSnakeCase(artists.library.name)}`),
+            summary: sql.raw(`excluded.${toSnakeCase(artists.summary.name)}`),
+          },
+        }).returning();
+        updatedArtists.push(...chunkResult);
+      }
 
-      // now we can just upsert the albums returned from plex
-      const updatedAlbums: Array<InferredSelectAlbumSchema> = await db.insert(albums).values(plexArtistAlbums).onConflictDoUpdate({
-        target: albums.uuid,
-        set: {
-          title: sql.raw(`excluded.${toSnakeCase(albums.title.name)}`),
-          image: sql.raw(`excluded.${toSnakeCase(albums.image.name)}`),
-          key: sql.raw(`excluded.${toSnakeCase(albums.key.name)}`),
-          library: sql.raw(`excluded.${toSnakeCase(albums.library.name)}`),
-          artist: sql.raw(`excluded.${toSnakeCase(albums.artist.name)}`),
-          summary: sql.raw(`excluded.${toSnakeCase(albums.summary.name)}`),
-        },
-      }).returning();
+      logger.info(`Artists updated (${updatedArtists.length}) for library: ${currentLibrary.uuid}`);
 
-      logger.info(`Albust updated for library: ${currentLibrary.uuid}`);
-      logger.debug(updatedAlbums);
-      // now we can just upsert the tracks returned from plex
-      const updatedTracks: Array<InferredSelectTrackSchema> = await db.insert(tracks).values(plexAlbumTracks).onConflictDoUpdate({
-        target: tracks.uuid,
-        set: {
-          title: sql.raw(`excluded.${toSnakeCase(tracks.title.name)}`),
-          key: sql.raw(`excluded.${toSnakeCase(tracks.key.name)}`),
-          path: sql.raw(`excluded.${toSnakeCase(tracks.path.name)}`),
-          library: sql.raw(`excluded.${toSnakeCase(tracks.library.name)}`),
-          artist: sql.raw(`excluded.${toSnakeCase(tracks.artist.name)}`),
-          album: sql.raw(`excluded.${toSnakeCase(tracks.album.name)}`),
-          duration: sql.raw(`excluded.${toSnakeCase(tracks.duration.name)}`),
-          trackNumber: sql.raw(`excluded.${toSnakeCase(tracks.trackNumber.name)}`),
-        },
-      }).returning();
+      // Upsert albums in chunks
+      const updatedAlbums: Array<InferredSelectAlbumSchema> = [];
+      
+      for (let i = 0; i < plexArtistAlbums.length; i += CHUNK_SIZE) {
+        const chunk = plexArtistAlbums.slice(i, i + CHUNK_SIZE);
+        const chunkResult = await db.insert(albums).values(chunk).onConflictDoUpdate({
+          target: albums.uuid,
+          set: {
+            title: sql.raw(`excluded.${toSnakeCase(albums.title.name)}`),
+            image: sql.raw(`excluded.${toSnakeCase(albums.image.name)}`),
+            key: sql.raw(`excluded.${toSnakeCase(albums.key.name)}`),
+            library: sql.raw(`excluded.${toSnakeCase(albums.library.name)}`),
+            artist: sql.raw(`excluded.${toSnakeCase(albums.artist.name)}`),
+            summary: sql.raw(`excluded.${toSnakeCase(albums.summary.name)}`),
+          },
+        }).returning();
+        updatedAlbums.push(...chunkResult);
+      }
 
-      logger.info(`Tracks updated for library: ${currentLibrary.uuid}`);
-      logger.debug(updatedTracks);
+      logger.info(`Albums updated (${updatedAlbums.length}) for library: ${currentLibrary.uuid}`);
+
+      // Upsert tracks in chunks
+      const updatedTracks: Array<InferredSelectTrackSchema> = [];
+      
+      for (let i = 0; i < plexAlbumTracks.length; i += CHUNK_SIZE) {
+        const chunk = plexAlbumTracks.slice(i, i + CHUNK_SIZE);
+        const chunkResult = await db.insert(tracks).values(chunk).onConflictDoUpdate({
+          target: tracks.uuid,
+          set: {
+            title: sql.raw(`excluded.${toSnakeCase(tracks.title.name)}`),
+            key: sql.raw(`excluded.${toSnakeCase(tracks.key.name)}`),
+            path: sql.raw(`excluded.${toSnakeCase(tracks.path.name)}`),
+            library: sql.raw(`excluded.${toSnakeCase(tracks.library.name)}`),
+            artist: sql.raw(`excluded.${toSnakeCase(tracks.artist.name)}`),
+            album: sql.raw(`excluded.${toSnakeCase(tracks.album.name)}`),
+            duration: sql.raw(`excluded.${toSnakeCase(tracks.duration.name)}`),
+            trackNumber: sql.raw(`excluded.${toSnakeCase(tracks.trackNumber.name)}`),
+          },
+        }).returning();
+        updatedTracks.push(...chunkResult);
+      }
+
+      logger.info(`Tracks updated (${updatedTracks.length}) for library: ${currentLibrary.uuid}`);
     };
   }
 
