@@ -14,12 +14,13 @@
   let syncing = $state(false);
   let unsyncedCount = $state(0);
 
+  // The page server guarantees currentLibrary is defined
+  const currentLibrary = data.currentLibrary!;
+
   // Get the count of unsynced tracks
   async function getUnsyncedCount(): Promise<void> {
-    if (!data.currentLibrary) return;
-    
     try {
-      const response = await fetch(`/api/sync-lyrics/unsynced-tracks?library=${data.currentLibrary.uuid}`);
+      const response = await fetch(`/api/sync-lyrics/unsynced-tracks?library=${currentLibrary.uuid}`);
       if (response.ok) {
         const data = await response.json();
         unsyncedCount = data.count;
@@ -31,8 +32,6 @@
 
   // Sync all missing tracks
   async function syncAllMissingTracks(): Promise<void> {
-    if (!data.currentLibrary) return;
-    
     syncing = true;
     
     try {
@@ -41,7 +40,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ library: data.currentLibrary.uuid }),
+        body: JSON.stringify({ library: currentLibrary.uuid }),
       });
 
       if (response.ok) {
@@ -88,34 +87,30 @@
 
   // Get unsynced count on page load
   $effect(() => {
-    if (data.currentLibrary) {
-      getUnsyncedCount();
-    }
+    getUnsyncedCount();
   });
 </script>
 
 <div class="px-5 py-1">
-  {#if data.currentLibrary}
-    <!-- Progress Bar - shows current sync progress -->
-    <SyncProgressBar libraryId={data.currentLibrary.uuid} />
-    
-    <!-- Sync Button - only show if there are unsynced tracks and no sync in progress -->
-    {#if unsyncedCount > 0}
-      <div class="mb-4 flex justify-between items-center">
-        <div class="text-lg font-semibold">
-          {unsyncedCount} tracks missing lyrics
-        </div>
-        <button
-          type="button"
-          class="btn preset-filled-primary-500"
-          disabled={syncing}
-          on:click={syncAllMissingTracks}
-        >
-          <Download class="size-4" />
-          {syncing ? "Starting Sync..." : "Sync All Missing Tracks"}
-        </button>
+  <!-- Progress Bar - shows current sync progress -->
+  <SyncProgressBar libraryId={currentLibrary.uuid} />
+  
+  <!-- Sync Button - only show if there are unsynced tracks and no sync in progress -->
+  {#if unsyncedCount > 0}
+    <div class="mb-4 flex justify-between items-center">
+      <div class="text-lg font-semibold">
+        {unsyncedCount} tracks missing lyrics
       </div>
-    {/if}
+      <button
+        type="button"
+        class="btn preset-filled-primary-500"
+        disabled={syncing}
+        onclick={syncAllMissingTracks}
+      >
+        <Download class="size-4" />
+        {syncing ? "Starting Sync..." : "Sync All Missing Tracks"}
+      </button>
+    </div>
   {/if}
   
   <div class="grid lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
