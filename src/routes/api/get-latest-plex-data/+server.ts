@@ -107,6 +107,7 @@ export const GET: RequestHandler = async () => {
         });
 
         if (artistsResponse.ok) {
+          logger.info("artistsResponse ok");
           const artistsJSON: ArtistsResposne = await artistsResponse.json();
           const plexArtists: Array<Artists> = artistsJSON.MediaContainer.Metadata;
 
@@ -122,6 +123,8 @@ export const GET: RequestHandler = async () => {
             };
           });
 
+          logger.info("plexArtists count", plexArtists.length);
+
           // if uuid in libaryArtists doesn't exist in plexLibraryArtists
           // delete it
           await Promise.all(libraryArtists.map((libraryArtist) => {
@@ -134,6 +137,10 @@ export const GET: RequestHandler = async () => {
             }
           }));
         }
+        else {
+          logger.error("artistsResponse not ok");
+          logger.error(artistsResponse.statusText);
+        }
 
         // now we get every album from plex
         const albumsResponse: Response = await fetch(`${baseURL}/library/sections/${currentLibrary?.key}/all?type=9&${plexAuthToken}`, {
@@ -144,6 +151,7 @@ export const GET: RequestHandler = async () => {
         });
 
         if (albumsResponse.ok) {
+          logger.info(`albumsResponse ok for library: ${currentLibrary?.uuid}`);
           const albumsJSON: AlbumsResponse = await albumsResponse.json();
           const plexAlbums: Array<Albums> = albumsJSON.MediaContainer.Metadata;
 
@@ -160,6 +168,8 @@ export const GET: RequestHandler = async () => {
             };
           });
 
+          logger.info("plexAlbums count", plexAlbums.length);
+
           // if uuid in artistAlbums doesn't exist in plexArtistsAlbums
           // delete it
           await Promise.all(artistAlbums.map((artistAlbum) => {
@@ -172,6 +182,10 @@ export const GET: RequestHandler = async () => {
             }
           }));
         }
+        else {
+          logger.error("albumsResponse not ok");
+          logger.error(albumsResponse.statusText);
+        }
 
         // now we get every track from plex
         const tracksResponse: Response = await fetch(`${baseURL}/library/sections/${currentLibrary?.key}/all?type=10&${plexAuthToken}`, {
@@ -182,6 +196,7 @@ export const GET: RequestHandler = async () => {
         });
 
         if (tracksResponse.ok) {
+          logger.info("tracksResponse ok");
           const tracksJSON: TracksResponse = await tracksResponse.json();
           const plexTracks: Array<Tracks> = tracksJSON.MediaContainer.Metadata;
 
@@ -200,6 +215,8 @@ export const GET: RequestHandler = async () => {
             };
           });
 
+          logger.info("plexTracks count", plexTracks.length);
+
           // if uuid in albumTracks doesn't exist in plexAlbumTracks
           // delete it
           await Promise.all(albumTracks.map((albumTrack) => {
@@ -211,6 +228,10 @@ export const GET: RequestHandler = async () => {
               return db.delete(tracks).where(eq(tracks.uuid, albumTrack.uuid));
             }
           }));
+        }
+        else {
+          logger.error("tracksResponse not ok");
+          logger.error(tracksResponse.statusText);
         }
       }
 

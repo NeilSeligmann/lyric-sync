@@ -64,7 +64,7 @@ export async function getAllAlbumsFromArtistInLibraryWithTrackCounts(libraryUUID
     tracksSynced: sql<number>`SUM(CASE WHEN ${tracks.synced} = 1 THEN 1 ELSE 0 END)`,
   }).from(albums).leftJoin(tracks, sql`${tracks.artist} = ${albums.artist} AND ${tracks.album} = ${albums.uuid}`).where(and(eq(tracks.library, libraryUUID), eq(tracks.artist, artistUUID))).groupBy(albums.uuid).orderBy(asc(sql`LOWER(${albums.title})`));
 
-  logger.info(`returning albums from artist: ${artistUUID} in library ${libraryUUID}`);
+  logger.info(`returning albums from artist: ${artistUUID} in library ${libraryUUID}, album count: ${returnedAlbums.length}`);
   logger.debug(returnedAlbums);
 
   return returnedAlbums;
