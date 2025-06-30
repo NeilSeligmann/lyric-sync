@@ -1,7 +1,8 @@
 import cron from "node-cron";
 import { logger } from "$lib/logger";
 import { getAllLibrariesInServer } from "$lib/server/db/query-utils";
-import { processSyncTracks } from "./sync-service";
+import { processSyncTracks } from "$lib/server/sync-service";
+import { plexSyncService } from "./plex-sync-service";
 
 export class CronService {
   private static instance: CronService;
@@ -37,6 +38,15 @@ export class CronService {
     cron.schedule("0 */6 * * *", async () => {
       logger.info("Running comprehensive sync job...");
       await this.runComprehensiveSync();
+    }, {
+      scheduled: true,
+      timezone: "UTC"
+    });
+
+    // Run every 12 hours - sync Plex library with database
+    cron.schedule("0 */12 * * *", async () => {
+      logger.info("Running Plex library sync job...");
+      await this.runPlexLibrarySync();
     }, {
       scheduled: true,
       timezone: "UTC"
@@ -80,6 +90,16 @@ export class CronService {
     }
   }
 
+  private async runPlexLibrarySync(): Promise<void> {
+    try {
+      logger.info("Starting Plex library sync with database...");
+      await plexSyncService.syncPlexData({ mode: "full" });
+      logger.info("Plex library sync completed successfully");
+    } catch (error) {
+      logger.error("Error in Plex library sync job:", error);
+    }
+  }
+
   // Manual trigger for testing
   async triggerManualSync(libraryId?: string): Promise<void> {
     logger.info("Manual sync triggered");
@@ -88,6 +108,19 @@ export class CronService {
       await processSyncTracks(null, [], libraryId, { mode: "manual" });
     } else {
       await this.runScheduledSync();
+    }
+  }
+
+  // Manual trigger for Plex sync
+  async triggerManualPlexSync(mode: "libraries" | "library_content" | "full" = "full", libraryId?: string): Promise<void> {
+    logger.info(`Manual Plex sync triggered with mode: ${mode}`);
+    
+    try {
+      await plexSyncService.syncPlexData({ mode, libraryId });
+      logger.info("Manual Plex sync completed successfully");
+    } catch (error) {
+      logger.error("Error in manual Plex sync:", error);
+      throw error;
     }
   }
 }

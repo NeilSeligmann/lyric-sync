@@ -1,19 +1,11 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import type { Metadata as Tracks, Root as TracksResponse } from "$lib/plex-api-types/library-sections-key-all-type-10";
-import type { Metadata as Artists, Root as ArtistsResposne } from "$lib/plex-api-types/library-sections-key-all-type-8";
-import type { Metadata as Albums, Root as AlbumsResponse } from "$lib/plex-api-types/library-sections-key-all-type-9";
-import type { InferredInsertAlbumSchema, InferredInsertArtistSchema, InferredInsertTrackSchema, InferredSelectAlbumSchema, InferredSelectArtistSchema, InferredSelectLibrarySchema, InferredSelectServerSchema, InferredSelectTrackSchema } from "$lib/types";
+import type { InferredSelectLibrarySchema, InferredSelectServerSchema } from "$lib/types";
 
 import { logger } from "$lib/logger";
-import { albums, artists, libraries, tracks } from "$lib/schema";
+import { libraries } from "$lib/schema";
 import db from "$lib/server/db";
-import noPlexAlbums from "$lib/server/db/no-plex-seed/albums";
-import noPlexArtists from "$lib/server/db/no-plex-seed/artists";
-import noPlexTracks from "$lib/server/db/no-plex-seed/tracks";
-import { getAllArtistsAlbumsTracksInLibrary } from "$lib/server/db/query-utils";
-import env from "$lib/server/env";
-import { eq, sql } from "drizzle-orm";
-import { toSnakeCase } from "drizzle-orm/casing";
+import { eq } from "drizzle-orm";
+import { plexSyncService } from "$lib/server/plex-sync-service";
 
 export const GET: RequestHandler = async () => {
   const serverConfiguration: InferredSelectServerSchema | undefined = await db.query.servers.findFirst();
@@ -23,294 +15,30 @@ export const GET: RequestHandler = async () => {
       where: eq(libraries.currentLibrary, true),
     });
 
-    let libraryArtists: Array<InferredInsertArtistSchema> = [];
-    let plexLibraryArtists: Array<InferredInsertArtistSchema> = [];
-    let artistAlbums: Array<InferredInsertAlbumSchema> = [];
-    let plexArtistAlbums: Array<InferredInsertAlbumSchema> = [];
-    let albumTracks: Array<InferredInsertTrackSchema> = [];
-    let plexAlbumTracks: Array<InferredInsertTrackSchema> = [];
-
     if (currentLibrary) {
-      logger.info("Updating db with latest data from plex");
-
-      const { returnedArtists, returnedAlbums, returnedTracks } = await getAllArtistsAlbumsTracksInLibrary(currentLibrary.uuid);
-
-      if (returnedArtists) {
-        // create array of InferredInsertLibrarySchema
-        // from the db response so we can merge that with
-        // whatever we got from plex
-        libraryArtists = returnedArtists.map(({ title, uuid, image, key, summary, synced, library }) => {
-          return {
-            title,
-            uuid,
-            image,
-            key,
-            summary,
-            synced,
-            library,
-          };
-        });
-      }
-
-      if (returnedAlbums) {
-        // create array of InferredInsertAlbumSchema
-        // from the db response so we can merge that with
-        // whatever we got from plex
-        artistAlbums = returnedAlbums.map(({ title, uuid, image, key, summary, synced, library, artist }) => {
-          return {
-            title,
-            uuid,
-            image,
-            key,
-            summary,
-            synced,
-            library,
-            artist,
-          };
-        });
-      }
-
-      if (returnedTracks) {
-        // create array of InferredInsertTrackSchema
-        // from the db response so we can merge that with
-        // whatever we got from plex
-        albumTracks = returnedTracks.map(({ title, uuid, key, path, synced, library, artist, album, duration, trackNumber }) => {
-          return {
-            title,
-            uuid,
-            key,
-            path,
-            synced,
-            library,
-            artist,
-            album,
-            duration,
-            trackNumber,
-          };
-        });
-      }
-
-      if (env.NO_PLEX) {
-        plexLibraryArtists = noPlexArtists;
-        plexArtistAlbums = noPlexAlbums;
-        plexAlbumTracks = noPlexTracks;
-      }
-      else {
-        // get artists from plex
-        const baseURL: string = `${serverConfiguration?.hostname}:${serverConfiguration?.port}`;
-        const plexAuthToken: string = `X-Plex-Token=${serverConfiguration?.xPlexToken}`;
-        const artistsResponse: Response = await fetch(`${baseURL}/library/sections/${currentLibrary?.key}/all?type=8&${plexAuthToken}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (artistsResponse.ok) {
-          logger.info("artistsResponse ok");
-          const artistsJSON: ArtistsResposne = await artistsResponse.json();
-          const plexArtists: Array<Artists> = artistsJSON.MediaContainer.Metadata;
-
-          // TODO: Use zod to validate
-          plexLibraryArtists = plexArtists.map((artist) => {
-            return {
-              title: artist.title,
-              uuid: artist.guid,
-              image: (artist.thumb ? artist.thumb : artist.art) ?? "replace-with-default-asset",
-              key: artist.key,
-              summary: artist.summary,
-              library: artistsJSON.MediaContainer.librarySectionUUID,
-            };
-          });
-
-          logger.info(`plexArtists count: ${plexArtists.length}`);
-
-          // if uuid in libaryArtists doesn't exist in plexLibraryArtists
-          // delete it
-          await Promise.all(libraryArtists.map((libraryArtist) => {
-            const doesUUIDExistInPlexLibraryArtists: InferredInsertArtistSchema | undefined = plexLibraryArtists.find(plexLibraryArtist => plexLibraryArtist.uuid === libraryArtist.uuid);
-            if (doesUUIDExistInPlexLibraryArtists) {
-              return null;
-            }
-            else {
-              return db.delete(artists).where(eq(artists.uuid, libraryArtist.uuid));
-            }
-          }));
-        }
-        else {
-          logger.error("artistsResponse not ok");
-          logger.error(artistsResponse.statusText);
-        }
-
-        // now we get every album from plex
-        const albumsResponse: Response = await fetch(`${baseURL}/library/sections/${currentLibrary?.key}/all?type=9&${plexAuthToken}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (albumsResponse.ok) {
-          logger.info(`albumsResponse ok for library: ${currentLibrary?.uuid}`);
-          const albumsJSON: AlbumsResponse = await albumsResponse.json();
-          const plexAlbums: Array<Albums> = albumsJSON.MediaContainer.Metadata;
-
-          // TODO: Use zod to validate
-          plexArtistAlbums = plexAlbums.map((album) => {
-            return {
-              title: album.title,
-              uuid: album.guid,
-              image: album.thumb ? album.thumb : album.art,
-              key: album.key,
-              summary: album.summary,
-              library: albumsJSON.MediaContainer.librarySectionUUID,
-              artist: album.parentGuid,
-            };
-          });
-
-          logger.info(`plexAlbums count: ${plexAlbums.length}`);
-
-          // if uuid in artistAlbums doesn't exist in plexArtistsAlbums
-          // delete it
-          await Promise.all(artistAlbums.map((artistAlbum) => {
-            const doesUUIDExistInPlexArtistAlbums: InferredInsertAlbumSchema | undefined = plexArtistAlbums.find(plexArtistAlbum => plexArtistAlbum.uuid === artistAlbum.uuid);
-            if (doesUUIDExistInPlexArtistAlbums) {
-              return null;
-            }
-            else {
-              return db.delete(albums).where(eq(albums.uuid, artistAlbum.uuid));
-            }
-          }));
-        }
-        else {
-          logger.error("albumsResponse not ok");
-          logger.error(albumsResponse.statusText);
-        }
-
-        // now we get every track from plex
-        const tracksResponse: Response = await fetch(`${baseURL}/library/sections/${currentLibrary?.key}/all?type=10&${plexAuthToken}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (tracksResponse.ok) {
-          logger.info("tracksResponse ok");
-          const tracksJSON: TracksResponse = await tracksResponse.json();
-          const plexTracks: Array<Tracks> = tracksJSON.MediaContainer.Metadata;
-
-          // TODO: Use zod to validate
-          plexAlbumTracks = plexTracks.map((track) => {
-            return {
-              title: track.title,
-              uuid: track.guid,
-              key: track.key,
-              path: track.Media[0].Part[0].file,
-              library: tracksJSON.MediaContainer.librarySectionUUID,
-              artist: track.grandparentGuid,
-              album: track.parentGuid,
-              // Fallback duration to 0 if not found
-              duration: track.Media[0].Part[0].duration ?? track.Media[0].duration ?? track.duration ?? 0,
-              trackNumber: track.index,
-            };
-          });
-
-          // Log first 10 plexTracks raw
-          logger.info(`plexTracks raw`);
-          logger.info(JSON.stringify(plexTracks.slice(0, 10), null, 2));
-
-          logger.info(`plexTracks count: ${plexTracks.length}`);
-
-          // if uuid in albumTracks doesn't exist in plexAlbumTracks
-          // delete it
-          await Promise.all(albumTracks.map((albumTrack) => {
-            const doesUUIDExistInPlexAlbumTracks: InferredInsertTrackSchema | undefined = plexAlbumTracks.find(plexAlbumTrack => plexAlbumTrack.uuid === albumTrack.uuid);
-            if (doesUUIDExistInPlexAlbumTracks) {
-              return null;
-            }
-            else {
-              return db.delete(tracks).where(eq(tracks.uuid, albumTrack.uuid));
-            }
-          }));
-        }
-        else {
-          logger.error("tracksResponse not ok");
-          logger.error(tracksResponse.statusText);
-        }
-      }
-
-      // TODO: only update artists/albums in the db that actually differ from what plex has
-      // instead of upserting everything everytime
-
-      logger.info(`Updating db with latest data from plex for library: ${currentLibrary?.uuid}`);
-
-      // Upsert artists in chunks to avoid overwhelming SQLite
-      const CHUNK_SIZE = 100;
-      const updatedArtists: Array<InferredSelectArtistSchema> = [];
+      logger.info(`Syncing library content for: ${currentLibrary.title} (${currentLibrary.uuid})`);
       
-      for (let i = 0; i < plexLibraryArtists.length; i += CHUNK_SIZE) {
-        const chunk = plexLibraryArtists.slice(i, i + CHUNK_SIZE);
-        const chunkResult = await db.insert(artists).values(chunk).onConflictDoUpdate({
-          target: artists.uuid,
-          set: {
-            title: sql.raw(`excluded.${toSnakeCase(artists.title.name)}`),
-            image: sql.raw(`excluded.${toSnakeCase(artists.image.name)}`),
-            key: sql.raw(`excluded.${toSnakeCase(artists.key.name)}`),
-            library: sql.raw(`excluded.${toSnakeCase(artists.library.name)}`),
-            summary: sql.raw(`excluded.${toSnakeCase(artists.summary.name)}`),
-          },
-        }).returning();
-        updatedArtists.push(...chunkResult);
+      try {
+        // Use the new Plex sync service to sync library content
+        await plexSyncService.syncPlexData({ 
+          mode: "library_content", 
+          libraryId: currentLibrary.uuid 
+        });
+        
+        logger.info(`Successfully synced library content for: ${currentLibrary.title}`);
+      } catch (error) {
+        logger.error(`Error syncing library content for ${currentLibrary.title}:`, error);
+        return new Response(JSON.stringify({ 
+          error: "Failed to sync library content",
+          details: error instanceof Error ? error.message : "Unknown error"
+        }), { status: 500 });
       }
-
-      logger.info(`Artists updated (${updatedArtists.length}) for library: ${currentLibrary.uuid}`);
-
-      // Upsert albums in chunks
-      const updatedAlbums: Array<InferredSelectAlbumSchema> = [];
-      
-      for (let i = 0; i < plexArtistAlbums.length; i += CHUNK_SIZE) {
-        const chunk = plexArtistAlbums.slice(i, i + CHUNK_SIZE);
-        const chunkResult = await db.insert(albums).values(chunk).onConflictDoUpdate({
-          target: albums.uuid,
-          set: {
-            title: sql.raw(`excluded.${toSnakeCase(albums.title.name)}`),
-            image: sql.raw(`excluded.${toSnakeCase(albums.image.name)}`),
-            key: sql.raw(`excluded.${toSnakeCase(albums.key.name)}`),
-            library: sql.raw(`excluded.${toSnakeCase(albums.library.name)}`),
-            artist: sql.raw(`excluded.${toSnakeCase(albums.artist.name)}`),
-            summary: sql.raw(`excluded.${toSnakeCase(albums.summary.name)}`),
-          },
-        }).returning();
-        updatedAlbums.push(...chunkResult);
-      }
-
-      logger.info(`Albums updated (${updatedAlbums.length}) for library: ${currentLibrary.uuid}`);
-
-      // Upsert tracks in chunks
-      const updatedTracks: Array<InferredSelectTrackSchema> = [];
-      
-      for (let i = 0; i < plexAlbumTracks.length; i += CHUNK_SIZE) {
-        const chunk = plexAlbumTracks.slice(i, i + CHUNK_SIZE);
-        const chunkResult = await db.insert(tracks).values(chunk).onConflictDoUpdate({
-          target: tracks.uuid,
-          set: {
-            title: sql.raw(`excluded.${toSnakeCase(tracks.title.name)}`),
-            key: sql.raw(`excluded.${toSnakeCase(tracks.key.name)}`),
-            path: sql.raw(`excluded.${toSnakeCase(tracks.path.name)}`),
-            library: sql.raw(`excluded.${toSnakeCase(tracks.library.name)}`),
-            artist: sql.raw(`excluded.${toSnakeCase(tracks.artist.name)}`),
-            album: sql.raw(`excluded.${toSnakeCase(tracks.album.name)}`),
-            duration: sql.raw(`excluded.${toSnakeCase(tracks.duration.name)}`),
-            trackNumber: sql.raw(`excluded.${toSnakeCase(tracks.trackNumber.name)}`),
-          },
-        }).returning();
-        updatedTracks.push(...chunkResult);
-      }
-
-      logger.info(`Tracks updated (${updatedTracks.length}) for library: ${currentLibrary.uuid}`);
-    };
+    } else {
+      logger.warn("No current library found");
+    }
+  } else {
+    logger.warn("No server configuration found");
   }
 
-  return new Response(JSON.stringify("hi"));
+  return new Response(JSON.stringify({ message: "Library content sync completed" }));
 };
