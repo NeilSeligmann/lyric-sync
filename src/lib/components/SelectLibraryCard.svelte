@@ -4,7 +4,7 @@
     InferredSelectServerSchema,
   } from "$lib/types";
 
-  import { RandomImageURL } from "$lib/external-links";
+  import { getLibraryImageUrl } from "$lib/image-utils";
   import { CircleCheck, CircleX } from "lucide-svelte";
 
   const selectedColor: string = "#00ff00";
@@ -42,9 +42,7 @@
   <!-- {/* Header */} -->
   <header>
     <img
-      src={library.image === "no-plex"
-        ? RandomImageURL
-        : baseURL + library.image + plexAuthToken}
+      src={getLibraryImageUrl(library.image, serverConfiguration)}
       alt="Library Artwork"
     />
   </header>

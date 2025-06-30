@@ -4,7 +4,7 @@ export default [
   {
     title: "Chasing Shadows",
     uuid: "plex://album/5d07ca02403c640290ce5891",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20169/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc70403c640290504ab9",
@@ -13,7 +13,7 @@ export default [
   {
     title: "…Of Nightmares",
     uuid: "plex://album/5d07c987403c640290c9a2e1",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19940/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc70403c640290504ab9",
@@ -22,7 +22,7 @@ export default [
   {
     title: "We Don’t Need to Whisper",
     uuid: "plex://album/5d07c1f8403c6402908906ef",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24738/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc70403c640290504ab9",
@@ -31,7 +31,7 @@ export default [
   {
     title: "Bleed the Future",
     uuid: "plex://album/610c631f9280929a7189233e",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23634/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be37403c640290669f94",
@@ -40,7 +40,7 @@ export default [
   {
     title: "The Lucid Collective",
     uuid: "plex://album/5d07c86b403c640290bf7d8c",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23617/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be37403c640290669f94",
@@ -49,7 +49,7 @@ export default [
   {
     title: "Relentless Mutation",
     uuid: "plex://album/5d07cb3f403c640290dc0d49",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23626/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be37403c640290669f94",
@@ -58,7 +58,7 @@ export default [
   {
     title: "Cross Purposes",
     uuid: "plex://album/5d07c180403c64029084d135",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25472/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5db4",
@@ -67,7 +67,7 @@ export default [
   {
     title: "Forbidden",
     uuid: "plex://album/5d07c1b4403c64029086a037",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25450/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5db4",
@@ -76,7 +76,7 @@ export default [
   {
     title: "Headless Cross",
     uuid: "plex://album/5d07c180403c64029084d12c",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25441/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5db4",
@@ -85,7 +85,7 @@ export default [
   {
     title: "TYR",
     uuid: "plex://album/5d07c180403c64029084d115",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25462/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5db4",
@@ -94,7 +94,7 @@ export default [
   {
     title: "blink‐182",
     uuid: "plex://album/5d07c196403c6402908593b2",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23275/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -103,7 +103,7 @@ export default [
   {
     title: "Dogs Eating Dogs",
     uuid: "plex://album/5d07c6ea403c640290b47b3f",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19903/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -112,7 +112,7 @@ export default [
   {
     title: "Greatest Hits",
     uuid: "plex://album/5d07c1b9403c64029086c4a2",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24805/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -121,7 +121,7 @@ export default [
   {
     title: "The Mark, Tom, and Travis Show (The Enema Strikes Back!)",
     uuid: "plex://album/5d07c1a3403c6402908601bf",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24669/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -130,7 +130,7 @@ export default [
   {
     title: "Neighborhoods",
     uuid: "plex://album/5d07c5e1403c640290ac5efd",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24764/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -139,7 +139,7 @@ export default [
   {
     title: "ONE MORE TIME…",
     uuid: "plex://album/6508940a0d5a0c4118eb4ef8",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/22914/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -148,7 +148,7 @@ export default [
   {
     title: "Take Off Your Pants and Jacket",
     uuid: "plex://album/5d07c171403c640290845c90",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24894/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6150",
@@ -157,7 +157,7 @@ export default [
   {
     title: "Box Car Racer",
     uuid: "plex://album/5d07c170403c640290844e35",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19497/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc18403c6402904baa3e",
@@ -166,7 +166,7 @@ export default [
   {
     title: "The Way It Ends",
     uuid: "plex://album/5ec7095d5dd81926d64000dd",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23907/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bd05403c640290584886",
@@ -175,7 +175,7 @@ export default [
   {
     title: "Afterburner",
     uuid: "plex://album/5e57adea0d155b24932c27b8",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23834/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcbd403c640290545929",
@@ -184,7 +184,7 @@ export default [
   {
     title: "Artificial Selection",
     uuid: "plex://album/5d07cc33403c640290e59eb3",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23438/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcbd403c640290545929",
@@ -193,7 +193,7 @@ export default [
   {
     title: "Jackpot Juicer",
     uuid: "plex://album/62753bc2ad4aee8d8bcbc0cd",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23875/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcbd403c640290545929",
@@ -202,7 +202,7 @@ export default [
   {
     title: "Old Record",
     uuid: "plex://album/5d07c6fd403c640290b4fd98",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19734/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc61403c6402904f91b3",
@@ -211,7 +211,7 @@ export default [
   {
     title: "New Order of Mind",
     uuid: "plex://album/65bbfbfe0d1ab655f968f68a",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24827/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07c023403c6402907da437",
@@ -220,7 +220,7 @@ export default [
   {
     title: "Adrenaline",
     uuid: "plex://album/5d07c178403c6402908490cf",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26469/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62e8",
@@ -229,7 +229,7 @@ export default [
   {
     title: "A Kiss for the Whole World",
     uuid: "plex://album/63c0407abc2fa048b469854a",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26180/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc97403c640290525181",
@@ -238,7 +238,7 @@ export default [
   {
     title: "ERRA",
     uuid: "plex://album/5fff3751885b0b002cb0a6d2",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23862/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bda4403c640290609643",
@@ -247,7 +247,7 @@ export default [
   {
     title: "Stomping Ground",
     uuid: "plex://album/5d07c19f403c64029085dbcc",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23188/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5ba5",
@@ -256,7 +256,7 @@ export default [
   {
     title: "1,039/Smoothed Out Slappy Hours",
     uuid: "plex://album/5d07c181403c64029084dac7",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23224/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -265,7 +265,7 @@ export default [
   {
     title: "American Idiot",
     uuid: "plex://album/5d07c17f403c64029084ca26",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24749/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -274,7 +274,7 @@ export default [
   {
     title: "Dookie",
     uuid: "plex://album/5d07c170403c640290844f33",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19438/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -283,7 +283,7 @@ export default [
   {
     title: "Insomniac",
     uuid: "plex://album/5d07c190403c640290856315",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23244/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -292,7 +292,7 @@ export default [
   {
     title: "nimrod.",
     uuid: "plex://album/5d07c179403c6402908491f2",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20202/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -301,7 +301,7 @@ export default [
   {
     title: "Shenanigans",
     uuid: "plex://album/5d07c17c403c64029084af71",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23259/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -310,7 +310,7 @@ export default [
   {
     title: "Warning:",
     uuid: "plex://album/5d07c171403c640290845a67",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25204/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6480",
@@ -319,7 +319,7 @@ export default [
   {
     title: "The Noble Art of Self Destruction",
     uuid: "plex://album/6467bd085db8ada4c8095d62",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26294/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bf56403c6402907413ce",
@@ -328,7 +328,7 @@ export default [
   {
     title: "Heavener",
     uuid: "plex://album/6401d6f98c673f6d159aba03",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24912/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be81403c6402906a0fad",
@@ -337,7 +337,7 @@ export default [
   {
     title: "A Different Shade of Blue",
     uuid: "plex://album/5d07cd79403c640290f0dfc8",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23945/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bef8403c6402906fa954",
@@ -346,7 +346,7 @@ export default [
   {
     title: "Laugh Tracks",
     uuid: "plex://album/5d07ca5e403c640290d23b3e",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23920/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bef8403c6402906fa954",
@@ -355,7 +355,7 @@ export default [
   {
     title: "A Tear in the Fabric of Life",
     uuid: "plex://album/616865e34c451f5a440487f1",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23938/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bef8403c6402906fa954",
@@ -364,7 +364,7 @@ export default [
   {
     title: "You Won’t Go Before You’re Supposed To",
     uuid: "plex://album/66276e53f03cec06113d103e",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24650/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bef8403c6402906fa954",
@@ -373,7 +373,7 @@ export default [
   {
     title: "20/20",
     uuid: "plex://album/5f539c1c211a4cb5f8d35b98",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23410/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be6f403c640290693374",
@@ -382,7 +382,7 @@ export default [
   {
     title: "Losing What We Love",
     uuid: "plex://album/64f8517f7a3f307a7375a338",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26167/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be6f403c640290693374",
@@ -391,7 +391,7 @@ export default [
   {
     title: "Issues",
     uuid: "plex://album/5d07c179403c64029084978d",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26230/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6387",
@@ -400,7 +400,7 @@ export default [
   {
     title: "Korn",
     uuid: "plex://album/5d07c177403c640290848342",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26247/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6387",
@@ -409,7 +409,7 @@ export default [
   {
     title: "Life Is Peachy",
     uuid: "plex://album/5d07c185403c64029084fca2",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20222/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6387",
@@ -418,7 +418,7 @@ export default [
   {
     title: "Absolute",
     uuid: "plex://album/5d98609fe019a48cf5bd6d06",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23665/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be85403c6402906a3d8c",
@@ -427,7 +427,7 @@ export default [
   {
     title: "Exhibition of Prowess",
     uuid: "plex://album/66c97ab5378326798afab599",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26442/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be85403c6402906a3d8c",
@@ -436,7 +436,7 @@ export default [
   {
     title: "Lowest Form of Animal",
     uuid: "plex://album/62473382c1c630dddb3efae0",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23656/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be85403c6402906a3d8c",
@@ -445,7 +445,7 @@ export default [
   {
     title: "Pezcore",
     uuid: "plex://album/5d07c17d403c64029084b765",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25184/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a65c0",
@@ -454,7 +454,7 @@ export default [
   {
     title: "From Zero",
     uuid: "plex://album/66da49b10340f39f5e030428",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/36341/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa391",
@@ -463,7 +463,7 @@ export default [
   {
     title: "Gold Against the Soul (Remastered)",
     uuid: "plex://album/5d07c170403c640290845082",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/36503/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5c74",
@@ -472,7 +472,7 @@ export default [
   {
     title: "…And Justice for All",
     uuid: "plex://album/5d07c170403c640290845374",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19632/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a673f",
@@ -481,7 +481,7 @@ export default [
   {
     title: "Load",
     uuid: "plex://album/5d07c170403c640290844c60",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19678/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a673f",
@@ -490,7 +490,7 @@ export default [
   {
     title: "Master of Puppets",
     uuid: "plex://album/5d07c171403c640290845ad5",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19669/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a673f",
@@ -499,7 +499,7 @@ export default [
   {
     title: "Metallica",
     uuid: "plex://album/5d07c171403c640290845a16",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19656/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a673f",
@@ -508,7 +508,7 @@ export default [
   {
     title: "Reload",
     uuid: "plex://album/5d07c172403c6402908461a1",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19693/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a673f",
@@ -517,7 +517,7 @@ export default [
   {
     title: "Life’s Not Out to Get You",
     uuid: "plex://album/5d07c94e403c640290c77f74",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24553/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be6c403c640290690f7b",
@@ -526,7 +526,7 @@ export default [
   {
     title: "Neck Deep",
     uuid: "plex://album/6517309b0d5a0c4118db159a",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24590/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be6c403c640290690f7b",
@@ -535,7 +535,7 @@ export default [
   {
     title: "The Peace and the Panic",
     uuid: "plex://album/5d07cb10403c640290d9f120",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24578/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be6c403c640290690f7b",
@@ -544,7 +544,7 @@ export default [
   {
     title: "The Downward Spiral",
     uuid: "plex://album/5d07c178403c640290848c2d",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26427/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5ed6",
@@ -553,7 +553,7 @@ export default [
   {
     title: "Pretty Hate Machine",
     uuid: "plex://album/5d07c179403c64029084932c",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26219/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a5ed6",
@@ -562,7 +562,7 @@ export default [
   {
     title: "Operation Ivy",
     uuid: "plex://album/5d07c170403c640290845233",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23159/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa125",
@@ -571,7 +571,7 @@ export default [
   {
     title: "Candyass",
     uuid: "plex://album/5d07c3fe403c6402909bc361",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26482/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa3ad",
@@ -580,7 +580,7 @@ export default [
   {
     title: "Periphery V: Djent Is Not a Genre",
     uuid: "plex://album/63c0081abc2fa048b4844512",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/36492/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc65403c6402904fcf4b",
@@ -589,7 +589,7 @@ export default [
   {
     title: "Renaissance",
     uuid: "plex://album/5d07c9f2403c640290cd9e10",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19720/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07be2d403c6402906623e1",
@@ -598,7 +598,7 @@ export default [
   {
     title: "Songs for the Deaf",
     uuid: "plex://album/5d07c173403c640290846c90",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23082/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa4d8",
@@ -607,7 +607,7 @@ export default [
   {
     title: "Rage Against the Machine",
     uuid: "plex://album/5d07c170403c640290845076",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19775/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a6319",
@@ -616,7 +616,7 @@ export default [
   {
     title: "Ramones",
     uuid: "plex://album/5d07c193403c640290857d5f",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23382/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa058",
@@ -625,7 +625,7 @@ export default [
   {
     title: "Iowa",
     uuid: "plex://album/5d07c178403c640290848e24",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/36466/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a613f",
@@ -634,7 +634,7 @@ export default [
   {
     title: "Slipknot",
     uuid: "plex://album/5d07c178403c640290848e21",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26412/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a613f",
@@ -643,7 +643,7 @@ export default [
   {
     title: "Vol. 3: (The Subliminal Verses)",
     uuid: "plex://album/5d07c17a403c64029084a267",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19481/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a613f",
@@ -652,7 +652,7 @@ export default [
   {
     title: "I Want to Disappear",
     uuid: "plex://album/65fd5a7bce80aba76116222a",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25338/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc30403c6402904ce8ba",
@@ -661,7 +661,7 @@ export default [
   {
     title: "Proper Dose",
     uuid: "local://24540",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24540/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc30403c6402904ce8ba",
@@ -670,7 +670,7 @@ export default [
   {
     title: "The Story So Far",
     uuid: "local://24529",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24529/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc30403c6402904ce8ba",
@@ -679,7 +679,7 @@ export default [
   {
     title: "What You Don’t See",
     uuid: "plex://album/5d07c71e403c640290b6294e",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24516/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc30403c6402904ce8ba",
@@ -688,7 +688,7 @@ export default [
   {
     title: "American Graffiti",
     uuid: "plex://album/5d07c9b6403c640290cb4770",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19746/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bde2403c64029062d77c",
@@ -697,7 +697,7 @@ export default [
   {
     title: "French Ghetto",
     uuid: "plex://album/5d07c7c7403c640290ba9a8b",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19760/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bde2403c64029062d77c",
@@ -706,7 +706,7 @@ export default [
   {
     title: "40 oz. to Freedom",
     uuid: "plex://album/5d07c185403c64029084fb2c",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24781/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6756",
@@ -715,7 +715,7 @@ export default [
   {
     title: "Sublime",
     uuid: "plex://album/5d07c179403c640290849515",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/24720/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfd403c6402904a6756",
@@ -724,7 +724,7 @@ export default [
   {
     title: "Does This Look Infected?",
     uuid: "plex://album/5d07c1a3403c64029086090f",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19917/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc03403c6402904aa5ea",
@@ -733,7 +733,7 @@ export default [
   {
     title: "Toxicity",
     uuid: "plex://album/5d07c172403c640290846353",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/26203/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bc02403c6402904aa0f9",
@@ -742,7 +742,7 @@ export default [
   {
     title: "10,000 Days",
     uuid: "plex://album/5d07c1f6403c64029088f072",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/25171/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -751,7 +751,7 @@ export default [
   {
     title: "Ænima",
     uuid: "plex://album/5d07c177403c640290848658",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20237/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -760,7 +760,7 @@ export default [
   {
     title: "Fear Inoculum",
     uuid: "plex://album/5d558f818b1c056cc08df1cb",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20267/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -769,7 +769,7 @@ export default [
   {
     title: "Lateralus",
     uuid: "plex://album/5d07c17c403c64029084b175",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/20253/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -778,7 +778,7 @@ export default [
   {
     title: "Opiate",
     uuid: "plex://album/5d07c177403c640290848646",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19427/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -787,7 +787,7 @@ export default [
   {
     title: "Undertow",
     uuid: "plex://album/5d07c177403c640290848648",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19416/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a62f8",
@@ -796,7 +796,7 @@ export default [
   {
     title: "False Idol",
     uuid: "plex://album/5d07cb5b403c640290dd429d",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23754/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcca403c6402905509a8",
@@ -805,7 +805,7 @@ export default [
   {
     title: "[m]other",
     uuid: "plex://album/640987c78c673f6d15683dac",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/23370/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcca403c6402905509a8",
@@ -814,7 +814,7 @@ export default [
   {
     title: "Matriarch",
     uuid: "plex://album/5d07c943403c640290c7153b",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19643/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bcca403c6402905509a8",
@@ -823,7 +823,7 @@ export default [
   {
     title: "Seven Days in Sammystown",
     uuid: "plex://album/5d07c2f0403c640290923072",
-    image: "no-plex",
+    image: null,
     key: "/library/metadata/19951/children",
     library: "7e6ae832-4998-4d37-b950-49fb62c42605",
     artist: "plex://artist/5d07bbfc403c6402904a620c",

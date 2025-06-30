@@ -5,7 +5,7 @@
   } from "$lib/types";
 
   import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { RandomImageURL } from "$lib/external-links";
+  import { getAlbumImageUrl } from "$lib/image-utils";
   import { CircleCheck, CircleX } from "lucide-svelte";
   import { fade } from "svelte/transition";
 
@@ -52,9 +52,7 @@
       <div class="flex w-1/2">
         <LazyLoading>
           <img
-            src={album.image === "no-plex"
-              ? RandomImageURL
-              : baseURL + album.image + plexAuthToken}
+            src={getAlbumImageUrl(album.image, serverConfiguration)}
             class="h-40"
             alt="Album Artwork"
             class:hidden={loading}

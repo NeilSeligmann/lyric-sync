@@ -2,7 +2,7 @@
   import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
   import { invalidateAll } from "$app/navigation";
   import TrackTableRow from "$lib/components/TrackTableRow.svelte";
-  import { RandomImageURL } from "$lib/external-links";
+  import { getAlbumImageUrl } from "$lib/image-utils";
   import { logger } from "$lib/logger";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -58,9 +58,7 @@
   >
     {#if data.returnedAlbum}
       <img
-        src={data.returnedAlbum.image === "no-plex"
-          ? RandomImageURL
-          : baseURL + data.returnedAlbum.image + plexAuthToken}
+        src={getAlbumImageUrl(data.returnedAlbum.image, data.serverConfiguration)}
         class="h-48"
         alt="Album Artwork"
         class:hidden={loading}

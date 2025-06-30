@@ -5,7 +5,7 @@
   } from "$lib/types";
 
   import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { RandomImageURL } from "$lib/external-links";
+  import { getArtistImageUrl } from "$lib/image-utils";
   import { CircleCheck, CircleX } from "lucide-svelte";
   import { fade } from "svelte/transition";
 
@@ -52,9 +52,7 @@
       <div class="flex w-1/2">
         <LazyLoading>
           <img
-            src={artist.image === "no-plex"
-              ? RandomImageURL
-              : baseURL + artist.image + plexAuthToken}
+            src={getArtistImageUrl(artist.image, serverConfiguration)}
             class="h-40"
             alt="Artist Artwork"
             class:hidden={loading}
@@ -91,23 +89,12 @@
       </div>
     </article>
     <!-- {/* Footer */} -->
-    <footer class="flex items-center justify-between gap-4 p-4 h-10">
-      <!-- TODO: Fill this with more information like how many albums/tracks are synced -->
-      {#if artist.totalAlbums === artist.albumsSynced}
-        <div class="flex gap-4">
-          <small class="opacity-60">Synced</small>
-          <CircleCheck color={selectedColor}></CircleCheck>
-        </div>
+    <footer class="flex items-center justify-between gap-4 p-4">
+      <small class="opacity-60">{artist.title}</small>
+      {#if artist.synced}
+        <CircleCheck color={selectedColor}></CircleCheck>
       {:else}
-        <div class="flex gap-4">
-          <small class="opacity-60">Lyrics Missing</small>
-          <CircleX></CircleX>
-        </div>
-        <div class="flex">
-          <button type="button" class="btn preset-filled-primary-500"
-          >Sync</button
-          >
-        </div>
+        <CircleX></CircleX>
       {/if}
     </footer>
   </a>
