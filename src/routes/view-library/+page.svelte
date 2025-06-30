@@ -2,9 +2,11 @@
   import ArtistCard from "$lib/components/ArtistCard.svelte";
   import SyncProgressBar from "$lib/components/SyncProgressBar.svelte";
   import SyncDashboard from "$lib/components/SyncDashboard.svelte";
+  import ArtistSearch from "$lib/components/ArtistSearch.svelte";
+  import type { ArtistWithAlbumCount } from "$lib/types";
   import { type ToastContext } from "@skeletonlabs/skeleton-svelte";
   import { invalidateAll } from "$app/navigation";
-  import { Download } from "lucide-svelte";
+  import { Download, Search } from "lucide-svelte";
   import { getContext } from "svelte";
 
   import type { PageData } from "./$types";
@@ -14,9 +16,15 @@
   
   let syncing = $state(false);
   let unsyncedCount = $state(0);
+  let displayedArtists = $state(data.returnedArtists || []);
 
   // The page server guarantees currentLibrary is defined
   const currentLibrary = data.currentLibrary!;
+
+  // Handle search results
+  function handleSearchChange(filteredArtists: ArtistWithAlbumCount[]): void {
+    displayedArtists = filteredArtists;
+  }
 
   // Get the count of unsynced tracks
   async function getUnsyncedCount(): Promise<void> {
@@ -101,6 +109,14 @@
     <SyncDashboard library={currentLibrary} />
   </div>
   
+  <!-- Artist Search -->
+  {#if data.returnedArtists && data.returnedArtists.length > 1}
+    <ArtistSearch 
+      artists={data.returnedArtists} 
+      onSearchChange={handleSearchChange} 
+    />
+  {/if}
+  
   <!-- Sync Button - only show if there are unsynced tracks and no sync in progress -->
   {#if unsyncedCount > 0}
     <div class="mb-4 flex justify-between items-center">
@@ -120,10 +136,18 @@
   {/if}
   
   <div class="grid lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-    {#if data.returnedArtists}
-      {#each data.returnedArtists as artist}
+    {#if displayedArtists && displayedArtists.length > 0}
+      {#each displayedArtists as artist}
         <ArtistCard {artist} serverConfiguration={data.serverConfiguration} />
       {/each}
+    {:else if displayedArtists && displayedArtists.length === 0}
+      <div class="col-span-full text-center py-12">
+        <div class="text-surface-600-400">
+          <Search class="size-12 mx-auto mb-4 opacity-50" />
+          <h3 class="text-lg font-medium mb-2">No artists found</h3>
+          <p class="text-sm">Try adjusting your search terms or browse all artists.</p>
+        </div>
+      </div>
     {/if}
   </div>
 </div>
