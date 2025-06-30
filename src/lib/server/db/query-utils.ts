@@ -141,3 +141,41 @@ export async function markAlbumAsSynced(albumUUID: string, libraryUUID: string):
 
   return returnedAlbum;
 };
+
+export async function getUnsyncedTracksInLibrary(libraryUUID: string): Promise<Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>> {
+  const returnedTracks = await db.select({
+    ...getTableColumns(tracks),
+    artistInfo: {
+      title: artists.title,
+      uuid: artists.uuid,
+      image: artists.image,
+      key: artists.key,
+      synced: artists.synced,
+      library: artists.library,
+      summary: artists.summary,
+      createdAt: artists.createdAt,
+      updatedAt: artists.updatedAt,
+    },
+    albumInfo: {
+      title: albums.title,
+      uuid: albums.uuid,
+      image: albums.image,
+      key: albums.key,
+      synced: albums.synced,
+      library: albums.library,
+      artist: albums.artist,
+      summary: albums.summary,
+      createdAt: albums.createdAt,
+      updatedAt: albums.updatedAt,
+    },
+  }).from(tracks)
+    .innerJoin(artists, eq(tracks.artist, artists.uuid))
+    .innerJoin(albums, eq(tracks.album, albums.uuid))
+    .where(and(eq(tracks.library, libraryUUID), eq(tracks.synced, false)))
+    .orderBy(asc(tracks.title));
+
+  logger.info(`returning unsynced tracks in library ${libraryUUID}, count: ${returnedTracks.length}`);
+  logger.debug(returnedTracks);
+
+  return returnedTracks as Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>;
+};

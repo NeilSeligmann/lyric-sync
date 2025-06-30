@@ -5,14 +5,19 @@ import { getAllArtistsInLibraryWithAlbumCounts } from "$lib/server/db/query-util
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ parent }) => {
-  const returnData: { returnedArtists: Array<ArtistWithAlbumCount> | undefined } = {
+  const returnData: { 
+    returnedArtists: Array<ArtistWithAlbumCount> | undefined;
+    currentLibrary: ServerLoadValues["currentLibrary"];
+  } = {
     returnedArtists: undefined,
+    currentLibrary: undefined,
   };
 
   const { currentLibrary }: ServerLoadValues = await parent();
 
   if (currentLibrary) {
     returnData.returnedArtists = await getAllArtistsInLibraryWithAlbumCounts(currentLibrary.uuid);
+    returnData.currentLibrary = currentLibrary;
 
     // this is to mitigate weird skeleton ui v3 bug with cards
     returnData.returnedArtists.unshift({

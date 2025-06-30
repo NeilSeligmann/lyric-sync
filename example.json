@@ -1,0 +1,606 @@
+[
+    {
+        "ratingKey": "32469",
+        "key": "/library/metadata/32469",
+        "parentRatingKey": "32468",
+        "grandparentRatingKey": "32467",
+        "guid": "plex://track/5d07dfff403c6402903b5de6",
+        "parentGuid": "plex://album/5d07c68d403c640290b1ef18",
+        "grandparentGuid": "plex://artist/5d07bd4d403c6402905c86b0",
+        "parentStudio": "PONY CANYON",
+        "type": "track",
+        "title": "Fiesta",
+        "grandparentKey": "/library/metadata/32467",
+        "parentKey": "/library/metadata/32468",
+        "grandparentTitle": "+Plus",
+        "parentTitle": "Fiesta/エール",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "ratingCount": 23692,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/32468/thumb/1715840688",
+        "parentThumb": "/library/metadata/32468/thumb/1715840688",
+        "grandparentThumb": "/library/metadata/32467/thumb/1719557798",
+        "duration": 237173,
+        "addedAt": 1562118778,
+        "updatedAt": 1751175796,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 29248,
+                "duration": 237173,
+                "bitrate": 1043,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 29248,
+                        "key": "/library/parts/29248/1562118778/file.flac",
+                        "duration": 237173,
+                        "file": "/data/Music/Fairy Tail Music Collection [FLAC]/Fairy Tail OP06 Single - Fiesta yell [+Plus]/01 Fiesta.flac",
+                        "size": 31006424,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Fiesta",
+                "type": "coverPoster",
+                "url": "/library/metadata/32467/thumb/1719557798"
+            }
+        ]
+    },
+    {
+        "ratingKey": "32470",
+        "key": "/library/metadata/32470",
+        "parentRatingKey": "32468",
+        "grandparentRatingKey": "32467",
+        "guid": "plex://track/5d07dfff403c6402903b5b96",
+        "parentGuid": "plex://album/5d07c68d403c640290b1ef18",
+        "grandparentGuid": "plex://artist/5d07bd4d403c6402905c86b0",
+        "parentStudio": "PONY CANYON",
+        "type": "track",
+        "title": "エール",
+        "grandparentKey": "/library/metadata/32467",
+        "parentKey": "/library/metadata/32468",
+        "grandparentTitle": "+Plus",
+        "parentTitle": "Fiesta/エール",
+        "summary": "",
+        "index": 2,
+        "parentIndex": 1,
+        "ratingCount": 185,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/32468/thumb/1715840688",
+        "parentThumb": "/library/metadata/32468/thumb/1715840688",
+        "grandparentThumb": "/library/metadata/32467/thumb/1719557798",
+        "duration": 243000,
+        "addedAt": 1562118780,
+        "updatedAt": 1751175796,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 29249,
+                "duration": 243000,
+                "bitrate": 991,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 29249,
+                        "key": "/library/parts/29249/1562118780/file.flac",
+                        "duration": 243000,
+                        "file": "/data/Music/Fairy Tail Music Collection [FLAC]/Fairy Tail OP06 Single - Fiesta yell [+Plus]/02 Yell.flac",
+                        "size": 30162250,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "エール",
+                "type": "coverPoster",
+                "url": "/library/metadata/32467/thumb/1719557798"
+            }
+        ]
+    },
+    {
+        "ratingKey": "32471",
+        "key": "/library/metadata/32471",
+        "parentRatingKey": "32468",
+        "grandparentRatingKey": "32467",
+        "guid": "plex://track/5d07dfff403c6402903b5991",
+        "parentGuid": "plex://album/5d07c68d403c640290b1ef18",
+        "grandparentGuid": "plex://artist/5d07bd4d403c6402905c86b0",
+        "parentStudio": "PONY CANYON",
+        "type": "track",
+        "title": "Birth",
+        "grandparentKey": "/library/metadata/32467",
+        "parentKey": "/library/metadata/32468",
+        "grandparentTitle": "+Plus",
+        "parentTitle": "Fiesta/エール",
+        "summary": "",
+        "index": 3,
+        "parentIndex": 1,
+        "ratingCount": 471,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/32468/thumb/1715840688",
+        "parentThumb": "/library/metadata/32468/thumb/1715840688",
+        "grandparentThumb": "/library/metadata/32467/thumb/1719557798",
+        "duration": 243386,
+        "addedAt": 1562118742,
+        "updatedAt": 1741065260,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 29250,
+                "duration": 243386,
+                "bitrate": 1042,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 29250,
+                        "key": "/library/parts/29250/1562118742/file.flac",
+                        "duration": 243386,
+                        "file": "/data/Music/Fairy Tail Music Collection [FLAC]/Fairy Tail OP06 Single - Fiesta yell [+Plus]/03 Birth.flac",
+                        "size": 31765778,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Birth",
+                "type": "coverPoster",
+                "url": "/library/metadata/32467/thumb/1719557798"
+            }
+        ]
+    },
+    {
+        "ratingKey": "42428",
+        "key": "/library/metadata/42428",
+        "parentRatingKey": "42427",
+        "grandparentRatingKey": "42426",
+        "guid": "plex://track/5d07e109403c6402904c27ec",
+        "parentGuid": "plex://album/5d07c6e0403c640290b437f9",
+        "grandparentGuid": "plex://artist/5d07bd32403c6402905af740",
+        "parentStudio": "Ariola Japan",
+        "type": "track",
+        "title": "Take off",
+        "grandparentKey": "/library/metadata/42426",
+        "parentKey": "/library/metadata/42427",
+        "grandparentTitle": "2PM",
+        "parentTitle": "Take off",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "ratingCount": 33468,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/42427/thumb/1715853996",
+        "art": "/library/metadata/42426/art/1751176389",
+        "parentThumb": "/library/metadata/42427/thumb/1715853996",
+        "grandparentThumb": "/library/metadata/42426/thumb/1751176389",
+        "grandparentArt": "/library/metadata/42426/art/1751176389",
+        "duration": 203400,
+        "addedAt": 1550193387,
+        "updatedAt": 1717747179,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 38244,
+                "duration": 203400,
+                "bitrate": 1077,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 38244,
+                        "key": "/library/parts/38244/1550193387/file.flac",
+                        "duration": 203400,
+                        "file": "/data/Music/Ao no Exorcist (FLAC)/Ao no Exorcist - ED1 Take off [2PM]/01. Take off.flac",
+                        "size": 27425180,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Take off",
+                "type": "coverPoster",
+                "url": "/library/metadata/42426/thumb/1751176389"
+            },
+            {
+                "alt": "Take off",
+                "type": "background",
+                "url": "/library/metadata/42426/art/1751176389"
+            }
+        ]
+    },
+    {
+        "ratingKey": "42429",
+        "key": "/library/metadata/42429",
+        "parentRatingKey": "42427",
+        "grandparentRatingKey": "42426",
+        "guid": "plex://track/5d07e109403c6402904c23d3",
+        "parentGuid": "plex://album/5d07c6e0403c640290b437f9",
+        "grandparentGuid": "plex://artist/5d07bd32403c6402905af740",
+        "parentStudio": "Ariola Japan",
+        "type": "track",
+        "title": "Heartbeat -Japanese ver.-",
+        "grandparentKey": "/library/metadata/42426",
+        "parentKey": "/library/metadata/42427",
+        "grandparentTitle": "2PM",
+        "parentTitle": "Take off",
+        "summary": "",
+        "index": 2,
+        "parentIndex": 1,
+        "ratingCount": 1104,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/42427/thumb/1715853996",
+        "art": "/library/metadata/42426/art/1751176389",
+        "parentThumb": "/library/metadata/42427/thumb/1715853996",
+        "grandparentThumb": "/library/metadata/42426/thumb/1751176389",
+        "grandparentArt": "/library/metadata/42426/art/1751176389",
+        "duration": 196133,
+        "addedAt": 1550193387,
+        "updatedAt": 1715853996,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 38245,
+                "duration": 196133,
+                "bitrate": 972,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 38245,
+                        "key": "/library/parts/38245/1550193387/file.flac",
+                        "duration": 196133,
+                        "file": "/data/Music/Ao no Exorcist (FLAC)/Ao no Exorcist - ED1 Take off [2PM]/02. Heartbeat -Japanese ver.-.flac",
+                        "size": 23881597,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Heartbeat -Japanese ver.-",
+                "type": "coverPoster",
+                "url": "/library/metadata/42426/thumb/1751176389"
+            },
+            {
+                "alt": "Heartbeat -Japanese ver.-",
+                "type": "background",
+                "url": "/library/metadata/42426/art/1751176389"
+            }
+        ]
+    },
+    {
+        "ratingKey": "50166",
+        "key": "/library/metadata/50166",
+        "parentRatingKey": "50162",
+        "grandparentRatingKey": "50161",
+        "guid": "local://50166",
+        "parentGuid": "local://50162",
+        "grandparentGuid": "plex://artist/5d07bbfc403c6402904a5c83",
+        "type": "track",
+        "title": "Kryptonite",
+        "grandparentKey": "/library/metadata/50161",
+        "parentKey": "/library/metadata/50162",
+        "grandparentTitle": "3 Doors Down",
+        "parentTitle": "Time Of My Life",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/50162/thumb/1724865131",
+        "art": "/library/metadata/50161/art/1750744078",
+        "parentThumb": "/library/metadata/50162/thumb/1724865131",
+        "grandparentThumb": "/library/metadata/50161/thumb/1750744078",
+        "grandparentArt": "/library/metadata/50161/art/1750744078",
+        "duration": 233826,
+        "addedAt": 1724865126,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 46879,
+                "duration": 233826,
+                "bitrate": 930,
+                "audioChannels": 2,
+                "audioCodec": "flac",
+                "container": "flac",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 46993,
+                        "key": "/library/parts/46993/1724477042/file.flac",
+                        "duration": 233826,
+                        "file": "/data/Music-Lidarr/3 Doors Down/01. Kryptonite.flac",
+                        "size": 27244248,
+                        "container": "flac",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Kryptonite",
+                "type": "coverPoster",
+                "url": "/library/metadata/50161/thumb/1750744078"
+            },
+            {
+                "alt": "Kryptonite",
+                "type": "background",
+                "url": "/library/metadata/50161/art/1750744078"
+            }
+        ]
+    },
+    {
+        "ratingKey": "50163",
+        "key": "/library/metadata/50163",
+        "parentRatingKey": "50162",
+        "grandparentRatingKey": "50161",
+        "guid": "local://50163",
+        "parentGuid": "local://50162",
+        "grandparentGuid": "plex://artist/5d07bbfc403c6402904a5c83",
+        "type": "track",
+        "title": "Time Of My Life",
+        "grandparentKey": "/library/metadata/50161",
+        "parentKey": "/library/metadata/50162",
+        "grandparentTitle": "3 Doors Down",
+        "parentTitle": "Time Of My Life",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/50162/thumb/1724865131",
+        "art": "/library/metadata/50161/art/1750744078",
+        "parentThumb": "/library/metadata/50162/thumb/1724865131",
+        "grandparentThumb": "/library/metadata/50161/thumb/1750744078",
+        "grandparentArt": "/library/metadata/50161/art/1750744078",
+        "duration": 203206,
+        "addedAt": 1724865126,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 46876,
+                "duration": 203206,
+                "bitrate": 320,
+                "audioChannels": 2,
+                "audioCodec": "mp3",
+                "container": "mp3",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 46990,
+                        "key": "/library/parts/46990/1724477068/file.mp3",
+                        "duration": 203206,
+                        "file": "/data/Music-Lidarr/3 Doors Down/01 - 3 Doors Down - Time Of My Life.mp3",
+                        "size": 8251620,
+                        "container": "mp3",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Time Of My Life",
+                "type": "coverPoster",
+                "url": "/library/metadata/50161/thumb/1750744078"
+            },
+            {
+                "alt": "Time Of My Life",
+                "type": "background",
+                "url": "/library/metadata/50161/art/1750744078"
+            }
+        ]
+    },
+    {
+        "ratingKey": "50164",
+        "key": "/library/metadata/50164",
+        "parentRatingKey": "50162",
+        "grandparentRatingKey": "50161",
+        "guid": "local://50164",
+        "parentGuid": "local://50162",
+        "grandparentGuid": "plex://artist/5d07bbfc403c6402904a5c83",
+        "type": "track",
+        "title": "Train",
+        "grandparentKey": "/library/metadata/50161",
+        "parentKey": "/library/metadata/50162",
+        "grandparentTitle": "3 Doors Down",
+        "parentTitle": "Time Of My Life",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/50162/thumb/1724865131",
+        "art": "/library/metadata/50161/art/1750744078",
+        "parentThumb": "/library/metadata/50162/thumb/1724865131",
+        "grandparentThumb": "/library/metadata/50161/thumb/1750744078",
+        "grandparentArt": "/library/metadata/50161/art/1750744078",
+        "duration": 190615,
+        "addedAt": 1724865126,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 46877,
+                "duration": 190615,
+                "bitrate": 320,
+                "audioChannels": 2,
+                "audioCodec": "mp3",
+                "container": "mp3",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 46991,
+                        "key": "/library/parts/46991/1724476994/file.mp3",
+                        "duration": 190615,
+                        "file": "/data/Music-Lidarr/3 Doors Down/01 - 3 Doors Down - Train.mp3",
+                        "size": 7790058,
+                        "container": "mp3",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Train",
+                "type": "coverPoster",
+                "url": "/library/metadata/50161/thumb/1750744078"
+            },
+            {
+                "alt": "Train",
+                "type": "background",
+                "url": "/library/metadata/50161/art/1750744078"
+            }
+        ]
+    },
+    {
+        "ratingKey": "50165",
+        "key": "/library/metadata/50165",
+        "parentRatingKey": "50162",
+        "grandparentRatingKey": "50161",
+        "guid": "local://50165",
+        "parentGuid": "local://50162",
+        "grandparentGuid": "plex://artist/5d07bbfc403c6402904a5c83",
+        "type": "track",
+        "title": "When I'm Gone",
+        "grandparentKey": "/library/metadata/50161",
+        "parentKey": "/library/metadata/50162",
+        "grandparentTitle": "3 Doors Down",
+        "parentTitle": "Time Of My Life",
+        "summary": "",
+        "index": 1,
+        "parentIndex": 1,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/50162/thumb/1724865131",
+        "art": "/library/metadata/50161/art/1750744078",
+        "parentThumb": "/library/metadata/50162/thumb/1724865131",
+        "grandparentThumb": "/library/metadata/50161/thumb/1750744078",
+        "grandparentArt": "/library/metadata/50161/art/1750744078",
+        "duration": 248737,
+        "addedAt": 1724865126,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 46878,
+                "duration": 248737,
+                "bitrate": 320,
+                "audioChannels": 2,
+                "audioCodec": "mp3",
+                "container": "mp3",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 46992,
+                        "key": "/library/parts/46992/1724510439/file.mp3",
+                        "duration": 248737,
+                        "file": "/data/Music-Lidarr/3 Doors Down/01 3 Doors Down - When I'm Gone.mp3",
+                        "size": 9987645,
+                        "container": "mp3",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "When I'm Gone",
+                "type": "coverPoster",
+                "url": "/library/metadata/50161/thumb/1750744078"
+            },
+            {
+                "alt": "When I'm Gone",
+                "type": "background",
+                "url": "/library/metadata/50161/art/1750744078"
+            }
+        ]
+    },
+    {
+        "ratingKey": "50167",
+        "key": "/library/metadata/50167",
+        "parentRatingKey": "50162",
+        "grandparentRatingKey": "50161",
+        "guid": "local://50167",
+        "parentGuid": "local://50162",
+        "grandparentGuid": "plex://artist/5d07bbfc403c6402904a5c83",
+        "type": "track",
+        "title": "Citizen/Soldier",
+        "grandparentKey": "/library/metadata/50161",
+        "parentKey": "/library/metadata/50162",
+        "grandparentTitle": "3 Doors Down",
+        "parentTitle": "Time Of My Life",
+        "summary": "",
+        "index": 2,
+        "parentIndex": 1,
+        "parentYear": 2011,
+        "thumb": "/library/metadata/50162/thumb/1724865131",
+        "art": "/library/metadata/50161/art/1750744078",
+        "parentThumb": "/library/metadata/50162/thumb/1724865131",
+        "grandparentThumb": "/library/metadata/50161/thumb/1750744078",
+        "grandparentArt": "/library/metadata/50161/art/1750744078",
+        "duration": 232933,
+        "addedAt": 1724865126,
+        "musicAnalysisVersion": "1",
+        "Media": [
+            {
+                "id": 46880,
+                "duration": 232933,
+                "bitrate": 320,
+                "audioChannels": 2,
+                "audioCodec": "mp3",
+                "container": "mp3",
+                "hasVoiceActivity": false,
+                "Part": [
+                    {
+                        "id": 46994,
+                        "key": "/library/parts/46994/1724477087/file.mp3",
+                        "duration": 232933,
+                        "file": "/data/Music-Lidarr/3 Doors Down/02 - 3 Doors Down - CitizenSoldier.mp3",
+                        "size": 9482803,
+                        "container": "mp3",
+                        "hasThumbnail": "1"
+                    }
+                ]
+            }
+        ],
+        "Image": [
+            {
+                "alt": "Citizen/Soldier",
+                "type": "coverPoster",
+                "url": "/library/metadata/50161/thumb/1750744078"
+            },
+            {
+                "alt": "Citizen/Soldier",
+                "type": "background",
+                "url": "/library/metadata/50161/art/1750744078"
+            }
+        ]
+    }
+]
