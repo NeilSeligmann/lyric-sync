@@ -47,6 +47,9 @@ v0.0.1
   ![Album's Tracks page](showcase/tracks-view.png)
 - Sync individual tracks with the click of a button
   ![Tracks synced](showcase/song-synced.png)
+- **Automatic Plex library synchronization** - Keeps your database in sync with Plex libraries
+- **Scheduled lyrics sync** - Automatically syncs lyrics for new and failed tracks
+- **Comprehensive sync options** - Manual and automated sync modes for different use cases
 
 ## Installation
 
@@ -74,6 +77,33 @@ services:
 ```
 
 `docker-compose up -d` and you're on your way.
+
+### Cronjob System
+
+Lyric-Sync includes an automated cronjob system that runs in the background to keep your data synchronized:
+
+- **Every hour**: Syncs lyrics for failed tracks and new tracks
+- **Every 6 hours**: Comprehensive lyrics sync for all unsynced tracks
+- **Every 12 hours**: Syncs Plex library data with the database
+
+The cronjob system ensures that:
+- New tracks added to Plex are automatically detected and synced
+- Failed lyric syncs are retried with exponential backoff
+- Plex library changes (new artists, albums, tracks) are reflected in the database
+- Removed content is cleaned up from the database
+
+### Library Management
+
+When you first add a library to Lyric-Sync, the system automatically:
+- Syncs library metadata from Plex
+- Downloads all artists, albums, and tracks for the library
+- Sets up the database structure for lyric syncing
+- Begins the automated cronjob system for ongoing synchronization
+
+You can also manually trigger syncs via the API:
+- `POST /api/sync-plex` - Manually sync Plex library data
+- `POST /api/sync-lyrics/sync-all` - Manually sync lyrics for a library
+- `GET /api/get-latest-plex-data` - Sync content for the current library
 
 Or the old fashioned way
 

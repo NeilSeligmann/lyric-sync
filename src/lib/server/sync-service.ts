@@ -1,6 +1,5 @@
-import type { LRCResponse, SyncTrackResponse } from "$lib/types";
+import type { SyncTrackResponse } from "$lib/types";
 
-import { LrcLibApi } from "$lib/external-links";
 import { logger } from "$lib/logger";
 import { 
   getUnsyncedTracksInLibrary, 
@@ -8,9 +7,8 @@ import {
   getNewTracksForSync,
   markTrackAsSyncedWithDetails 
 } from "$lib/server/db/query-utils";
+import { processLyrics } from "$lib/server/lyrics-search";
 import { syncProgressManager } from "$lib/server/sync-progress";
-import fs from "node:fs/promises";
-import path from "node:path";
 
 interface SyncOptions {
   mode: "manual" | "scheduled" | "comprehensive" | "bulk";
@@ -88,43 +86,16 @@ export async function processSyncTracks(
       }
 
       try {
-        // Build the LRC API URL using the artist and album info
-        const durationInSeconds = Math.floor(trackData.duration / 1000);
-        const lrcGetUrl: string = `${LrcLibApi}artist_name=${encodeURIComponent(trackData.artistInfo.title)}&track_name=${encodeURIComponent(trackData.title)}&album_name=${encodeURIComponent(trackData.albumInfo.title)}&duration=${durationInSeconds}`;
-
-        logger.info(`Searching for lyrics: ${lrcGetUrl}`);
-
-        const lyricResponse: Response = await fetch(lrcGetUrl);
-
-        if (lyricResponse.ok) {
-          const lyricResponseJson: LRCResponse = await lyricResponse.json();
-          
-          if (lyricResponseJson.syncedLyrics) {
-            // Write synced lyrics to LRC file
-            const lrcPath: string = `${path.dirname(trackData.path)}/${path.parse(trackData.path).name}.lrc`;
-
-            await fs.writeFile(lrcPath, lyricResponseJson.syncedLyrics);
-            syncTrackResponse.synced = true;
-            syncTrackResponse.plainLyrics = false;
-            await markTrackAsSyncedWithDetails(trackData.uuid, library, true);
-            syncTrackResponse.message = `LRC lyrics grabbed for ${trackData.title}`;
-          } else if (lyricResponseJson.plainLyrics) {
-            // Write plain lyrics to TXT file
-            const txtPath: string = `${path.dirname(trackData.path)}/${path.parse(trackData.path).name}.txt`;
-            
-            await fs.writeFile(txtPath, lyricResponseJson.plainLyrics);
-            syncTrackResponse.synced = true;
-            syncTrackResponse.plainLyrics = true;
-            await markTrackAsSyncedWithDetails(trackData.uuid, library, true);
-            syncTrackResponse.message = `TXT lyrics grabbed for ${trackData.title}`;
-          } else {
-            syncTrackResponse.message = `${trackData.title} has an entry in the lrclib api but no lyrics`;
-            await markTrackAsSyncedWithDetails(trackData.uuid, library, false, syncTrackResponse.message);
-          }
-        } else {
-          syncTrackResponse.message = `No lyrics found for ${trackData.title}`;
-          await markTrackAsSyncedWithDetails(trackData.uuid, library, false, syncTrackResponse.message);
-        }
+        // Process lyrics using unified function
+        const syncTrackResponse: SyncTrackResponse = await processLyrics({
+          artistName: trackData.artistInfo.title,
+          trackName: trackData.title,
+          albumName: trackData.albumInfo.title,
+          duration: trackData.duration,
+          trackUuid: trackData.uuid,
+          library,
+          trackPath: trackData.path
+        });
       } catch (error: unknown) {
         errorCount++;
         if (error instanceof Error) {
