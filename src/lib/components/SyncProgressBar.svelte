@@ -125,7 +125,14 @@
 
     {#if progress.currentTrack && progress.status === 'running'}
       <div class="text-sm text-gray-600 mb-2">
-        Currently processing: <span class="font-medium">{progress.currentTrack}</span>
+        Currently processing: 
+        <span class="font-medium">
+          {#if progress.currentArtist}
+            {progress.currentArtist} - {progress.currentTrack}
+          {:else}
+            {progress.currentTrack}
+          {/if}
+        </span>
       </div>
     {/if}
 

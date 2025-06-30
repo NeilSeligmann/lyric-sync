@@ -109,7 +109,7 @@ async function processSyncTracks(progressId: string, unsyncedTracks: any[], libr
       }
 
       // Update progress
-      syncProgressManager.incrementProcessed(progressId, syncTrackResponse, trackData.title);
+      syncProgressManager.incrementProcessed(progressId, syncTrackResponse, trackData.title, trackData.artistInfo.title);
     }
 
     // Mark as completed

@@ -12,6 +12,7 @@ export interface SyncProgress {
   endTime?: Date;
   results: Array<SyncTrackResponse>;
   currentTrack?: string;
+  currentArtist?: string;
 }
 
 class SyncProgressManager {
@@ -51,12 +52,13 @@ class SyncProgressManager {
     }
   }
 
-  incrementProcessed(id: string, result: SyncTrackResponse, trackTitle?: string): void {
+  incrementProcessed(id: string, result: SyncTrackResponse, trackTitle?: string, artistName?: string): void {
     const progress = this.progressMap.get(id);
     if (progress) {
       progress.processedTracks++;
       progress.results.push(result);
       progress.currentTrack = trackTitle;
+      progress.currentArtist = artistName;
       
       if (result.synced) {
         progress.syncedTracks++;
