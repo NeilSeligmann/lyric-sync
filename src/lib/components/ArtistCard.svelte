@@ -20,12 +20,19 @@
     serverConfiguration: InferredSelectServerSchema | undefined;
   } = $props();
 
-  const baseURL: string = `${serverConfiguration?.hostname}:${serverConfiguration?.port}`;
-  const plexAuthToken: string = `?X-Plex-Token=${serverConfiguration?.xPlexToken}`;
   let hovered: boolean = $state(false);
   let loading: boolean = $state(true);
 
+  // Set a timeout to prevent infinite loading
+  setTimeout(() => {
+    loading = false;
+  }, 10000); // 10 second timeout
+
   function imageLoaded(): void {
+    loading = false;
+  }
+
+  function imageError(): void {
     loading = false;
   }
 </script>
@@ -58,6 +65,7 @@
             class:hidden={loading}
             transition:fade
             onload={imageLoaded}
+            onerror={imageError}
           />
           <div class:hidden={!loading}>
             <ProgressRing
