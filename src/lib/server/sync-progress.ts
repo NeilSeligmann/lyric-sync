@@ -8,8 +8,8 @@ export interface SyncProgress {
   syncedTracks: number;
   failedTracks: number;
   status: 'pending' | 'running' | 'completed' | 'failed';
-  startTime: Date;
-  endTime?: Date;
+  startTime: number; // Unix timestamp in milliseconds
+  endTime?: number; // Unix timestamp in milliseconds
   results: Array<SyncTrackResponse>;
   currentTrack?: string;
   currentArtist?: string;
@@ -28,7 +28,7 @@ class SyncProgressManager {
       syncedTracks: 0,
       failedTracks: 0,
       status: 'pending',
-      startTime: new Date(),
+      startTime: Date.now(), // Store as timestamp
       results: [],
     };
     
@@ -72,12 +72,12 @@ class SyncProgressManager {
     const progress = this.progressMap.get(id);
     if (progress) {
       progress.status = status;
-      progress.endTime = new Date();
+      progress.endTime = Date.now(); // Store as timestamp
     }
   }
 
   cleanupOldProgress(): void {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const oneHourAgo = Date.now() - 60 * 60 * 1000; // One hour ago as timestamp
     for (const [id, progress] of this.progressMap.entries()) {
       if (progress.endTime && progress.endTime < oneHourAgo) {
         this.progressMap.delete(id);

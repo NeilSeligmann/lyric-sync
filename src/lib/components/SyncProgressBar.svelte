@@ -31,8 +31,8 @@
           // Update derived values
           progressPercentage = progress.totalTracks > 0 ? Math.round((progress.processedTracks / progress.totalTracks) * 100) : 0;
           
-          const endTime = progress.endTime || new Date();
-          elapsedTime = Math.round((endTime.getTime() - progress.startTime.getTime()) / 1000);
+          const endTime = progress.endTime || Date.now();
+          elapsedTime = Math.round((endTime - progress.startTime) / 1000);
         }
         
         // Stop polling if sync is completed or failed
