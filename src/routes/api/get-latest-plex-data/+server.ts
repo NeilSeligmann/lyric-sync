@@ -210,7 +210,8 @@ export const GET: RequestHandler = async () => {
               library: tracksJSON.MediaContainer.librarySectionUUID,
               artist: track.grandparentGuid,
               album: track.parentGuid,
-              duration: track.Media[0].Part[0].duration,
+              // Fallback duration to 0 if not found
+              duration: track.Media[0].Part[0].duration ?? track.Media[0].duration ?? track.duration ?? 0,
               trackNumber: track.index,
             };
           });
