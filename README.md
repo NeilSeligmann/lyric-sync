@@ -53,6 +53,22 @@ v0.0.1
 
 ## Installation
 
+### Authentication
+
+Lyric-Sync supports optional Basic Authentication to secure your instance. To enable authentication:
+
+1. Set both `AUTH_USERNAME` and `AUTH_PASSWORD` environment variables
+2. Restart the application
+3. You'll be prompted for credentials when accessing the web interface
+
+**Important**: If you set one authentication variable, you must set both. If neither is set, authentication is disabled.
+
+Example environment variables:
+```bash
+AUTH_USERNAME="admin"
+AUTH_PASSWORD="your-secure-password"
+```
+
 ### Docker
 
 Docker is the recommended way to run Lyric-Sync. It just makes things easier.
@@ -69,6 +85,9 @@ services:
     environment:
       - ORIGIN=http://where-lyric-sync-is-running:3000
       - DATABASE_URL=file:/your-music-library/lyric-sync.db
+      # Optional: Enable authentication
+      # - AUTH_USERNAME=admin
+      # - AUTH_PASSWORD=your-secure-password
     volumes:
       - /your-music-library:/your-music-library
     ports:
@@ -115,6 +134,9 @@ docker pull ghcr.io/phishbacon/lyric-sync:main
 docker run -p 3000:3000 \
   -e ORIGIN=http://where-lyric-sync-is-running:3000 \
   -e DATABASE_URL=file:/your-music-library/lyric-sync.db \
+  # Optional: Enable authentication
+  # -e AUTH_USERNAME=admin \
+  # -e AUTH_PASSWORD=your-secure-password \
   --volume /your-music-library:/your-music-library \
   --name lyric-sync \
   -i ghcr.io/phishbacon/lyric-sync:main

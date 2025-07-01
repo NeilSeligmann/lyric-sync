@@ -7,11 +7,12 @@ import { plexSyncService } from "$lib/server/plex-sync-service";
 
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async () => {
+export const load: LayoutServerLoad = async ({ locals }) => {
   const defaultValues: ServerLoadValues = {
     serverConfiguration: undefined,
     libraries: [],
     currentLibrary: undefined,
+    auth: locals.auth,
   };
 
   // get server configuration
@@ -43,5 +44,8 @@ export const load: LayoutServerLoad = async () => {
     }
   }
 
-  return defaultValues;
+  return {
+    ...defaultValues,
+    auth: locals.auth,
+  };
 };

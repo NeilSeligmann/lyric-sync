@@ -42,11 +42,11 @@
             backgroundColor: "rgba(59, 130, 246, 0.1)",
             borderWidth: 2,
             fill: true,
-            tension: 0.4,
+            tension: 0,
             pointRadius: 3,
             pointHoverRadius: 5,
             pointBackgroundColor: "rgb(59, 130, 246)",
-            pointBorderColor: "#ffffff",
+            pointBorderColor: "rgb(30, 41, 59)",
             pointBorderWidth: 2
           }
         ]
@@ -69,29 +69,45 @@
             },
             title: {
               display: true,
-              text: "Time"
+              text: "Time",
+              color: "rgb(148, 163, 184)"
             },
             grid: {
-              color: "rgba(0, 0, 0, 0.1)"
+              color: "rgba(148, 163, 184, 0.2)"
+            },
+            ticks: {
+              color: "rgb(148, 163, 184)"
             }
           },
           y: {
             beginAtZero: true,
             title: {
               display: true,
-              text: "Tracks per Second"
+              text: "Tracks per Second",
+              color: "rgb(148, 163, 184)"
             },
             grid: {
-              color: "rgba(0, 0, 0, 0.1)"
+              color: "rgba(148, 163, 184, 0.2)"
+            },
+            ticks: {
+              color: "rgb(148, 163, 184)"
             }
           }
         },
         plugins: {
           legend: {
             display: true,
-            position: "top"
+            position: "top",
+            labels: {
+              color: "rgb(148, 163, 184)"
+            }
           },
           tooltip: {
+            backgroundColor: "rgb(30, 41, 59)",
+            titleColor: "rgb(148, 163, 184)",
+            bodyColor: "rgb(148, 163, 184)",
+            borderColor: "rgb(71, 85, 105)",
+            borderWidth: 1,
             callbacks: {
               title: (context) => {
                 const date = new Date(context[0].parsed.x);
@@ -133,9 +149,9 @@
 <style>
   .chart-container {
     position: relative;
-    background: white;
+    background: rgb(30, 41, 59);
     border-radius: 8px;
     padding: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
-</style> 
+</style>

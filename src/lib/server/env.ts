@@ -18,6 +18,8 @@ const EnvSchema = z.object({
   NO_PLEX: z.string().optional(),
   SYNC_CONCURRENCY: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(1).max(16)).default("4"),
   CRON_TIMEZONE: z.string().default("UTC"),
+  AUTH_USERNAME: z.string().optional(),
+  AUTH_PASSWORD: z.string().optional(),
 }).superRefine((input, ctx) => {
   if (input.NODE_ENV === "production") {
     if (!input.DATABASE_URL) {
@@ -32,6 +34,15 @@ const EnvSchema = z.object({
   }
   else if (!input.DATABASE_URL) {
     input.DATABASE_URL = "file:dev.db";
+  }
+  
+  // Validate that if one auth credential is set, both must be set
+  if ((input.AUTH_USERNAME && !input.AUTH_PASSWORD) || (!input.AUTH_USERNAME && input.AUTH_PASSWORD)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["AUTH_USERNAME"],
+      message: "Both AUTH_USERNAME and AUTH_PASSWORD must be set together, or neither",
+    });
   }
 });
 

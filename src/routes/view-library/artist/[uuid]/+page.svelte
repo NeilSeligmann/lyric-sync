@@ -13,12 +13,7 @@
   // TODO: Move this to the server side maybe...
 
   const artist: InferredSelectArtistSchema | undefined = $derived.by(() => {
-    if (data.returnedArtists) {
-      return data.returnedArtists.find(artist => artist.uuid === page.params.uuid);
-    }
-    else {
-      return undefined;
-    }
+    return data.returnedArtist;
   });
 
   const baseURL: string = `${data.serverConfiguration?.hostname}:${data.serverConfiguration?.port}`;

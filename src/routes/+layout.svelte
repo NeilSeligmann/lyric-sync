@@ -9,6 +9,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { setContext, type Snippet } from "svelte";
+  import { LogOut } from "lucide-svelte";
 
   import type { LayoutServerData } from "./$types";
 
@@ -34,6 +35,13 @@
     }
   }
   setContext("redirectOnMount", redirectOnMount);
+
+  function handleLogout() {
+    // Clear stored credentials
+    sessionStorage.removeItem("auth_credentials");
+    // Reload the page to trigger re-authentication
+    window.location.reload();
+  }
 </script>
 
 <ToastProvider>
@@ -45,36 +53,51 @@
       </strong>
     {/snippet}
     {#snippet trail()}
-      {#if data.serverConfiguration}
-        {#if data.currentLibrary}
-          {#if page.url.pathname !== "/select-library"}
-            <a
-              class="btn btn-sm variant-ghost-surface"
-              href="/select-library"
-              rel="noreferrer"
-            >
-              Change Library
-            </a>
-          {/if}
-          {#if !page.url.pathname.includes("/view-library")}
-            <a
-              class="btn btn-sm variant-ghost-surface"
-              href="/view-library"
-              rel="noreferrer"
-            >
-              View Library
-            </a>
-          {/if}
+      <div class="flex items-center gap-2">
+        {#if data.auth?.authenticated && data.auth.username}
+          <span class="text-sm text-surface-600-400">
+            {data.auth.username}
+          </span>
+          <button
+            class="btn btn-sm variant-ghost-surface"
+            onclick={handleLogout}
+            title="Logout"
+          >
+            <LogOut class="size-4" />
+          </button>
         {/if}
-      {:else}
-        <a
-          class="btn btn-sm variant-ghost-surface"
-          href="/add-server"
-          rel="noreferrer"
-        >
-          Add Server
-        </a>
-      {/if}
+        
+        {#if data.serverConfiguration}
+          {#if data.currentLibrary}
+            {#if page.url.pathname !== "/select-library"}
+              <a
+                class="btn btn-sm variant-ghost-surface"
+                href="/select-library"
+                rel="noreferrer"
+              >
+                Change Library
+              </a>
+            {/if}
+            {#if !page.url.pathname.includes("/view-library")}
+              <a
+                class="btn btn-sm variant-ghost-surface"
+                href="/view-library"
+                rel="noreferrer"
+              >
+                View Library
+              </a>
+            {/if}
+          {/if}
+        {:else}
+          <a
+            class="btn btn-sm variant-ghost-surface"
+            href="/add-server"
+            rel="noreferrer"
+          >
+            Add Server
+          </a>
+        {/if}
+      </div>
     {/snippet}
   </AppBar>
   <!-- Page Route Content -->

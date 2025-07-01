@@ -40,10 +40,13 @@ export interface TestConnectionResponse {
 // server load default types
 export type InferredSelectServerSchema = z.infer<typeof selectServerSchema>;
 export type InferredSelectLibrarySchema = z.infer<typeof selectLibrarySchema>;
+import type { AuthSession } from "$lib/server/auth-service";
+
 export interface ServerLoadValues {
   serverConfiguration: InferredSelectServerSchema | undefined;
   libraries: Array<InferredSelectLibrarySchema> | [];
   currentLibrary: InferredSelectLibrarySchema | undefined;
+  auth: AuthSession;
 }
 
 // types for select-library
@@ -72,7 +75,12 @@ export interface LibraryItems {
   returnedArtists: Array<InferredSelectArtistSchema> | undefined;
   returnedAlbums: Array<InferredSelectAlbumSchema> | undefined;
   returnedTracks: Array<InferredSelectTrackSchema> | undefined;
-};
+}
+
+export interface ArtistPageData {
+  returnedAlbums: Array<AlbumWithTrackCount> | undefined;
+  returnedArtist: InferredSelectArtistSchema | undefined;
+}
 
 export interface ArtistWithAlbumCount extends InferredSelectArtistSchema {
   totalAlbums: number;

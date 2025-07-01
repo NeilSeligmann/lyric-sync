@@ -1,17 +1,23 @@
-import type { AlbumWithTrackCount, ServerLoadValues } from "$lib/types";
+import type { AlbumWithTrackCount, ServerLoadValues, InferredSelectArtistSchema } from "$lib/types";
 
-import { getAllAlbumsFromArtistInLibraryWithTrackCounts } from "$lib/server/db/query-utils";
+import { getAllAlbumsFromArtistInLibraryWithTrackCounts, getArtistByUuid } from "$lib/server/db/query-utils";
 
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const returnData: {
     returnedAlbums: Array<AlbumWithTrackCount> | undefined;
+    returnedArtist: InferredSelectArtistSchema | undefined;
   } = {
     returnedAlbums: undefined,
+    returnedArtist: undefined,
   };
   const { currentLibrary }: ServerLoadValues = await parent();
   if (currentLibrary) {
+    // Get the specific artist
+    const returnedArtist = await getArtistByUuid(params.uuid);
+    returnData.returnedArtist = returnedArtist;
+
     const returnedAlbums: Array<AlbumWithTrackCount> = await getAllAlbumsFromArtistInLibraryWithTrackCounts(currentLibrary.uuid, params.uuid);
 
     // this is to mitigate weird skeleton ui v3 bug with cards
