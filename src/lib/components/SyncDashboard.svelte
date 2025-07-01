@@ -260,7 +260,7 @@
           <ProgressRing
             value={progressPercentage}
             max={100}
-            size="size-10"
+            size="size-16"
           />
           <div class="flex-1">
             <div class="flex justify-between text-sm">
