@@ -17,6 +17,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().url(),
   NO_PLEX: z.string().optional(),
   SYNC_CONCURRENCY: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(1).max(16)).default("4"),
+  CRON_TIMEZONE: z.string().default("UTC"),
 }).superRefine((input, ctx) => {
   if (input.NODE_ENV === "production") {
     if (!input.DATABASE_URL) {

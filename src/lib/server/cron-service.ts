@@ -3,6 +3,7 @@ import { logger } from "$lib/logger";
 import { getAllLibrariesInServer } from "$lib/server/db/query-utils";
 import { processSyncTracks } from "$lib/server/sync-service";
 import { plexSyncService } from "./plex-sync-service";
+import env from "$lib/server/env";
 
 export class CronService {
   private static instance: CronService;
@@ -25,31 +26,31 @@ export class CronService {
 
     logger.info("Initializing CronService...");
 
-    // Run every hour - retry failed tracks and sync new tracks
-    cron.schedule("0 * * * *", async () => {
+    // Run every 12 hours - retry failed tracks and sync new tracks
+    cron.schedule("0 */12 * * *", async () => {
       logger.info("Running scheduled sync job...");
       await this.runScheduledSync();
     }, {
       scheduled: true,
-      timezone: "UTC"
+      timezone: env.CRON_TIMEZONE
     });
 
-    // Run every 6 hours - more comprehensive sync
-    cron.schedule("0 */6 * * *", async () => {
+    // Run every 12 hours - more comprehensive sync
+    cron.schedule("0 */12 * * *", async () => {
       logger.info("Running comprehensive sync job...");
       await this.runComprehensiveSync();
     }, {
       scheduled: true,
-      timezone: "UTC"
+      timezone: env.CRON_TIMEZONE
     });
 
-    // Run every 12 hours - sync Plex library with database
-    cron.schedule("0 */12 * * *", async () => {
+    // Run every 6 hours - sync Plex library with database
+    cron.schedule("0 */6 * * *", async () => {
       logger.info("Running Plex library sync job...");
       await this.runPlexLibrarySync();
     }, {
       scheduled: true,
-      timezone: "UTC"
+      timezone: env.CRON_TIMEZONE
     });
 
     this.isInitialized = true;
