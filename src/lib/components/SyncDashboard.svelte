@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { InferredSelectLibrarySchema } from "$lib/types";
   import { AppBar, ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Download, XCircle } from "lucide-svelte";
+  import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Download, XCircle, ChevronDown, ChevronUp, FileText, Music } from "lucide-svelte";
   import { onMount, onDestroy } from "svelte";
   import { invalidateAll } from "$app/navigation";
   import type { SyncProgress } from "$lib/server/sync-progress";
+  import type { SyncTrackResponse } from "$lib/types";
 
   const { library }: { library: InferredSelectLibrarySchema } = $props();
 
@@ -25,11 +26,42 @@
   let error: string | null = $state(null);
   let progressPercentage = $state(0);
   let elapsedTime = $state(0);
+  let processingSpeed = $state(0); // tracks per second
+  let estimatedTimeRemaining = $state(0); // seconds
+  let showDetailedResults = $state(false);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatDuration = (seconds: number): string => {
+    if (seconds < 60) return `${seconds}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
+
+  // Get recent results (last 10)
+  const recentResults = $derived.by(() => {
+    if (!progress?.results) return [];
+    return (progress.results as SyncTrackResponse[]).slice(-10).reverse(); // Show most recent first
+  });
+
+  // Calculate processing speed and ETA
+  const calculateProcessingMetrics = () => {
+    if (!progress || progress.processedTracks === 0) {
+      processingSpeed = 0;
+      estimatedTimeRemaining = 0;
+      return;
+    }
+
+    const elapsed = (Date.now() - progress.startTime) / 1000;
+    processingSpeed = elapsed > 0 ? progress.processedTracks / elapsed : 0;
+    
+    const remainingTracks = progress.totalTracks - progress.processedTracks;
+    estimatedTimeRemaining = processingSpeed > 0 ? remainingTracks / processingSpeed : 0;
   };
 
   async function fetchStats(): Promise<void> {
@@ -58,6 +90,9 @@
           
           const endTime = progress.endTime || Date.now();
           elapsedTime = Math.round((endTime - progress.startTime) / 1000);
+          
+          // Calculate processing metrics
+          calculateProcessingMetrics();
         }
         
         // Stop polling if sync is completed or failed
@@ -208,6 +243,71 @@
         </div>
       {/if}
 
+      <!-- Active Tracks Display -->
+      {#if progress.activeTracks && progress.activeTracks.length > 0 && progress.status === 'running'}
+        <div class="mb-3">
+          <div class="text-sm text-surface-600-400 mb-2">
+            Batch {progress.currentBatch} of {progress.totalBatches} - Active Tracks ({progress.activeTracks.length}):
+          </div>
+          <div class="space-y-1 max-h-32 overflow-y-auto">
+            {#each progress.activeTracks as track}
+              <div class="flex items-center justify-between p-1 bg-surface-100-900 rounded text-xs">
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                  {#if track.status === 'processing'}
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  {:else if track.status === 'completed'}
+                    <CheckCircle class="size-3 text-green-500" />
+                  {:else if track.status === 'failed'}
+                    <XCircle class="size-3 text-red-500" />
+                  {/if}
+                  <div class="min-w-0 flex-1">
+                    <div class="font-medium truncate">
+                      {track.artistName} - {track.trackTitle}
+                    </div>
+                    {#if track.status === 'processing'}
+                      <div class="text-xs text-surface-600-400">
+                        Processing... ({formatDuration((Date.now() - track.startTime) / 1000)})
+                      </div>
+                    {:else if track.result}
+                      <div class="text-xs text-surface-600-400 truncate">
+                        {track.result.message}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      <!-- Processing Metrics -->
+      {#if progress.status === 'running' && processingSpeed > 0}
+        <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
+          <div class="flex items-center gap-1">
+            <Music class="size-4" />
+            <span>{processingSpeed.toFixed(1)} tracks/sec</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <Clock class="size-4" />
+            <span>ETA: {formatDuration(estimatedTimeRemaining)}</span>
+          </div>
+        </div>
+        
+        <!-- Batch Progress -->
+        {#if progress.totalBatches > 1}
+          <div class="mb-3 text-sm">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-surface-600-400">Batch Progress</span>
+              <span>{progress.currentBatch} / {progress.totalBatches}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-1">
+              <div class="bg-blue-600 h-1 rounded-full" style="width: {Math.round((progress.currentBatch / progress.totalBatches) * 100)}%"></div>
+            </div>
+          </div>
+        {/if}
+      {/if}
+
       <div class="flex gap-4 text-sm">
         <div class="flex items-center gap-1">
           <CheckCircle class="size-4 text-green-500" />
@@ -218,6 +318,51 @@
           <span>{progress.failedTracks} failed</span>
         </div>
       </div>
+
+      <!-- Detailed Results Toggle -->
+      {#if progress.results && progress.results.length > 0}
+        <div class="mt-3">
+          <button 
+            class="btn btn-ghost btn-sm flex items-center gap-1"
+            onclick={() => showDetailedResults = !showDetailedResults}
+          >
+            {#if showDetailedResults}
+              <ChevronUp class="size-4" />
+            {:else}
+              <ChevronDown class="size-4" />
+            {/if}
+            Recent Results ({recentResults.length})
+          </button>
+        </div>
+
+        {#if showDetailedResults}
+          <div class="mt-3 max-h-64 overflow-y-auto">
+            <div class="space-y-2">
+              {#each recentResults as result}
+                <div class="flex items-center justify-between p-2 bg-surface-100-900 rounded text-sm">
+                  <div class="flex items-center gap-2 flex-1 min-w-0">
+                    {#if (result as SyncTrackResponse).synced}
+                      <CheckCircle class="size-4 text-green-500 flex-shrink-0" />
+                    {:else}
+                      <XCircle class="size-4 text-red-500 flex-shrink-0" />
+                    {/if}
+                    <div class="min-w-0 flex-1">
+                      <div class="font-medium truncate">
+                        {(result as SyncTrackResponse).message || 'Track processed'}
+                      </div>
+                      {#if (result as SyncTrackResponse).plainLyrics}
+                        <div class="text-xs text-surface-600-400">Plain lyrics</div>
+                      {:else}
+                        <div class="text-xs text-surface-600-400">Synced lyrics</div>
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {/if}
 
       {#if progress.status === 'completed'}
         <div class="mt-3 p-2 bg-green-100 text-green-800 rounded text-sm">

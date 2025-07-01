@@ -1,7 +1,4 @@
 import type { SyncTrackResponse } from "$lib/types";
-import { Worker } from "worker_threads";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { logger } from "$lib/logger";
 import { 
@@ -18,10 +15,6 @@ interface SyncOptions {
   mode: "manual" | "scheduled" | "comprehensive" | "bulk";
   maxConcurrency?: number;
 }
-
-// Get the directory of the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export async function processSyncTracks(
   progressId: string | null, 
@@ -70,7 +63,8 @@ export async function processSyncTracks(
 
     // Create progress tracking if not provided
     if (!progressId) {
-      progressId = syncProgressManager.createProgress(library, tracksToProcess.length);
+      const maxConcurrency = options.maxConcurrency || env.SYNC_CONCURRENCY;
+      progressId = syncProgressManager.createProgress(library, tracksToProcess.length, maxConcurrency);
       syncProgressManager.updateProgress(progressId, { status: 'running' });
     }
 
@@ -78,11 +72,59 @@ export async function processSyncTracks(
     let processedCount = 0;
     let errorCount = 0;
 
-    // Process tracks in batches with controlled concurrency
+    // Process tracks in batches with controlled concurrency using Promise.allSettled
     for (let i = 0; i < tracksToProcess.length; i += maxConcurrency) {
       const batch = tracksToProcess.slice(i, i + maxConcurrency);
-      const batchPromises = batch.map(trackData => processTrackWithWorker(trackData, library));
+      const batchNumber = Math.floor(i / maxConcurrency) + 1;
       
+      // Start tracking this batch
+      if (progressId) {
+        syncProgressManager.startBatch(progressId, batchNumber, batch);
+      }
+      
+      // Process batch in parallel using Promise.allSettled
+      const batchPromises = batch.map(async (trackData) => {
+        try {
+          // Validate track data
+          if (!trackData.title || !trackData.uuid || !trackData.artistInfo?.title || !trackData.albumInfo?.title || !trackData.duration || isNaN(trackData.duration) || !isFinite(trackData.duration)) {
+            const errorMsg = `Invalid track data: title=${trackData.title}, uuid=${trackData.uuid}, artist=${trackData.artistInfo?.title}, album=${trackData.albumInfo?.title}, duration=${trackData.duration}`;
+            logger.error(errorMsg);
+            return {
+              success: false,
+              error: errorMsg,
+              trackTitle: trackData.title || 'unknown',
+              artistName: trackData.artistInfo?.title || 'unknown'
+            };
+          }
+
+          // Process lyrics using unified function
+          const syncTrackResponse: SyncTrackResponse = await processLyrics({
+            artistName: trackData.artistInfo.title,
+            trackName: trackData.title,
+            albumName: trackData.albumInfo.title,
+            duration: trackData.duration,
+            trackUuid: trackData.uuid,
+            library,
+            trackPath: trackData.path
+          });
+
+          return {
+            success: true,
+            syncTrackResponse,
+            trackTitle: trackData.title,
+            artistName: trackData.artistInfo.title
+          };
+        } catch (error) {
+          logger.error(`Error processing track ${trackData.title}:`, error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+            trackTitle: trackData.title || 'unknown',
+            artistName: trackData.artistInfo?.title || 'unknown'
+          };
+        }
+      });
+
       const batchResults = await Promise.allSettled(batchPromises);
       
       // Process batch results
@@ -90,26 +132,40 @@ export async function processSyncTracks(
         processedCount++;
         
         if (result.status === 'fulfilled') {
-          const { syncTrackResponse, trackTitle, artistName } = result.value;
+          const { success, syncTrackResponse, error, trackTitle, artistName } = result.value;
           
-          // Update progress if we have a progress ID
-          if (progressId) {
-            syncProgressManager.incrementProcessed(progressId, syncTrackResponse, trackTitle, artistName);
-          }
-          
-          if (!syncTrackResponse.synced) {
+          if (success && syncTrackResponse) {
+            // Update progress if we have a progress ID
+            if (progressId) {
+              syncProgressManager.completeTrack(progressId, trackTitle, artistName, syncTrackResponse);
+            }
+            
+            if (!syncTrackResponse.synced) {
+              errorCount++;
+            }
+          } else {
             errorCount++;
+            logger.error(`Failed to process track ${trackTitle}: ${error}`);
+            
+            // Update progress for failed processing
+            if (progressId) {
+              syncProgressManager.completeTrack(progressId, trackTitle, artistName, {
+                synced: false,
+                plainLyrics: true,
+                message: error || 'Unknown error'
+              });
+            }
           }
         } else {
           errorCount++;
-          logger.error(`Worker failed for track: ${result.reason}`);
+          logger.error(`Promise rejected for track: ${result.reason}`);
           
-          // Update progress for failed worker
+          // Update progress for rejected promise
           if (progressId) {
             syncProgressManager.incrementProcessed(progressId, {
               synced: false,
               plainLyrics: true,
-              message: `Worker failed: ${result.reason}`
+              message: `Promise rejected: ${result.reason}`
             }, 'unknown', 'unknown');
           }
         }
@@ -140,66 +196,4 @@ export async function processSyncTracks(
     // Re-throw the error to let the caller handle it
     throw error;
   }
-}
-
-/**
- * Process a single track using a worker thread
- */
-async function processTrackWithWorker(trackData: any, library: string): Promise<{
-  syncTrackResponse: SyncTrackResponse;
-  trackTitle: string;
-  artistName: string;
-}> {
-  return new Promise((resolve, reject) => {
-    // Validate track data
-    if (!trackData.title || !trackData.uuid || !trackData.artistInfo?.title || !trackData.albumInfo?.title || !trackData.duration || isNaN(trackData.duration) || !isFinite(trackData.duration)) {
-      const errorMsg = `Invalid track data: title=${trackData.title}, uuid=${trackData.uuid}, artist=${trackData.artistInfo?.title}, album=${trackData.albumInfo?.title}, duration=${trackData.duration}`;
-      logger.error(errorMsg);
-      reject(new Error(errorMsg));
-      return;
-    }
-
-    // Create worker - TypeScript file will be compiled by the build process
-    const workerPath = path.join(__dirname, 'lyrics-worker.js');
-    const worker = new Worker(workerPath, {
-      workerData: {
-        trackData,
-        library
-      }
-    });
-
-    // Set up worker message handling
-    worker.on('message', (message) => {
-      if (message.success) {
-        resolve({
-          syncTrackResponse: message.result,
-          trackTitle: message.trackTitle,
-          artistName: message.artistName
-        });
-      } else {
-        reject(new Error(message.error));
-      }
-      worker.terminate();
-    });
-
-    // Set up worker error handling
-    worker.on('error', (error) => {
-      logger.error(`Worker error for track ${trackData.title}:`, error);
-      reject(error);
-      worker.terminate();
-    });
-
-    // Set up worker exit handling
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Worker stopped with exit code ${code}`));
-      }
-    });
-
-    // Set a timeout for the worker
-    setTimeout(() => {
-      worker.terminate();
-      reject(new Error(`Worker timeout for track ${trackData.title}`));
-    }, 30000); // 30 second timeout
-  });
 } 
