@@ -1,0 +1,1 @@
+UPDATE `artists` SET `image` = NULL WHERE `image` = 'replace-with-default-asset'; 

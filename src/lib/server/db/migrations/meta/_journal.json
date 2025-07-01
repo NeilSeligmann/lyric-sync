@@ -64,6 +64,13 @@
       "when": 1751321373967,
       "tag": "0008_fat_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1751321373968,
+      "tag": "0009_fix_artist_images",
+      "breakpoints": true
     }
   ]
 }

@@ -250,7 +250,7 @@ export class PlexSyncService {
           return {
             title: artist.title,
             uuid: artist.guid,
-            image: (artist.thumb ? artist.thumb : artist.art) ?? "replace-with-default-asset",
+            image: (artist.thumb ? artist.thumb : artist.art) ?? null,
             key: artist.key,
             summary: artist.summary,
             library: artistsJSON.MediaContainer.librarySectionUUID,
