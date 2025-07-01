@@ -8,4 +8,12 @@ export default defineConfig({
       "top-level-await": true,
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['worker_threads']
+    }
+  },
+  optimizeDeps: {
+    exclude: ['worker_threads']
+  }
 });
