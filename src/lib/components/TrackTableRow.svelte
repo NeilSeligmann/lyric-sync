@@ -61,7 +61,7 @@
     else {
       trackSynced = false;
       toast.create({
-        title: "Sync Failed",
+        title: "No Lyrics Found",
         description: syncLyricsResponseJson.message,
         type: "error",
       });

@@ -12,7 +12,7 @@
   let stats = $state({
     totalTracks: 0,
     syncedTracks: 0,
-    failedTracks: 0,
+    noLyricsTracks: 0,
     pendingRetryTracks: 0,
     newTracks: 0
   });
@@ -69,7 +69,11 @@
       const response = await fetch(`/api/sync-lyrics/stats?library=${library.uuid}`);
       if (response.ok) {
         const data = await response.json();
-        stats = data.stats;
+        // Map backend failedTracks to frontend noLyricsTracks
+        stats = {
+          ...data.stats,
+          noLyricsTracks: data.stats.failedTracks
+        };
         lastUpdated = new Date();
       }
     } catch (error) {
@@ -302,7 +306,7 @@
         </div>
         <div class="flex items-center gap-1">
           <XCircle class="size-4 text-red-500" />
-          <span>{progress.failedTracks} failed</span>
+          <span>{progress.failedTracks} unavailable</span>
         </div>
       </div>
 
@@ -353,7 +357,7 @@
 
       {#if progress.status === 'completed'}
         <div class="mt-3 p-2 bg-green-100 text-green-800 rounded text-sm">
-          Successfully synced {progress.syncedTracks} tracks. {progress.failedTracks} tracks failed.
+          Successfully synced {progress.syncedTracks} tracks. {progress.failedTracks} tracks unavailable.
         </div>
       {:else if progress.status === 'failed'}
         <div class="mt-3 p-2 bg-red-100 text-red-800 rounded text-sm">
@@ -395,8 +399,8 @@
       <div class="flex items-center justify-center mb-1">
         <AlertCircle class="size-5 text-red-500" />
       </div>
-      <div class="text-2xl font-bold text-red-500">{stats.failedTracks}</div>
-      <div class="text-xs text-surface-600-400">Failed</div>
+      <div class="text-2xl font-bold text-red-500">{stats.noLyricsTracks}</div>
+      <div class="text-xs text-surface-600-400">No Lyrics</div>
     </div>
     
     <div class="text-center">
@@ -426,7 +430,7 @@
         onclick={() => triggerManualSync("retry")}
       >
         <RefreshCw class="size-4 mr-1" />
-        Retry Failed ({stats.pendingRetryTracks})
+        Retry Unavailable ({stats.pendingRetryTracks})
       </button>
       
       <button 
