@@ -230,19 +230,6 @@
         </div>
       </div>
 
-      {#if progress.currentTrack && progress.status === 'running'}
-        <div class="text-sm text-surface-600-400 mb-2">
-          Currently processing: 
-          <span class="font-medium">
-            {#if progress.currentArtist}
-              {progress.currentArtist} - {progress.currentTrack}
-            {:else}
-              {progress.currentTrack}
-            {/if}
-          </span>
-        </div>
-      {/if}
-
       <!-- Active Tracks Display -->
       {#if progress.activeTracks && progress.activeTracks.length > 0 && progress.status === 'running'}
         <div class="mb-3">
