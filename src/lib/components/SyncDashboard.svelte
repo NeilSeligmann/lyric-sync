@@ -1,11 +1,12 @@
 <script lang="ts">
   import type { InferredSelectLibrarySchema } from "$lib/types";
   import { AppBar, ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Download, XCircle, ChevronDown, ChevronUp, FileText, Music } from "lucide-svelte";
+  import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Download, XCircle, ChevronDown, ChevronUp, FileText, Music, BarChart3 } from "lucide-svelte";
   import { onMount, onDestroy } from "svelte";
   import { invalidateAll } from "$app/navigation";
   import type { SyncProgress } from "$lib/server/sync-progress";
   import type { SyncTrackResponse } from "$lib/types";
+  import SyncSpeedChart from "./SyncSpeedChart.svelte";
 
   const { library }: { library: InferredSelectLibrarySchema } = $props();
 
@@ -29,6 +30,12 @@
   let processingSpeed = $state(0); // tracks per second
   let estimatedTimeRemaining = $state(0); // seconds
   let showDetailedResults = $state(false);
+  let showSpeedChart = $state(false);
+  
+  // Speed tracking over time
+  let speedData = $state<Array<{ timestamp: number; tracksPerSecond: number }>>([]);
+  let lastProcessedCount = $state(0);
+  let lastSpeedUpdate = $state(0);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -62,6 +69,31 @@
     
     const remainingTracks = progress.totalTracks - progress.processedTracks;
     estimatedTimeRemaining = processingSpeed > 0 ? remainingTracks / processingSpeed : 0;
+    
+    // Track speed data over time
+    const now = Date.now();
+    if (progress.status === 'running' && 
+        (progress.processedTracks !== lastProcessedCount || now - lastSpeedUpdate > 5000)) {
+      
+      // Calculate instantaneous speed (tracks processed since last update)
+      if (lastProcessedCount > 0 && lastSpeedUpdate > 0) {
+        const timeDiff = (now - lastSpeedUpdate) / 1000;
+        const tracksDiff = progress.processedTracks - lastProcessedCount;
+        const instantSpeed = timeDiff > 0 ? tracksDiff / timeDiff : 0;
+        
+        if (instantSpeed > 0) {
+          speedData = [...speedData, { timestamp: now, tracksPerSecond: instantSpeed }];
+          
+          // Keep only last 50 data points to prevent memory issues
+          if (speedData.length > 50) {
+            speedData = speedData.slice(-50);
+          }
+        }
+      }
+      
+      lastProcessedCount = progress.processedTracks;
+      lastSpeedUpdate = now;
+    }
   };
 
   async function fetchStats(): Promise<void> {
@@ -132,6 +164,11 @@
 
   async function triggerManualSync(mode: "retry" | "new" | "comprehensive"): Promise<void> {
     loading = true;
+    // Reset speed tracking for new sync
+    speedData = [];
+    lastProcessedCount = 0;
+    lastSpeedUpdate = 0;
+    
     try {
       const response = await fetch("/api/sync-lyrics/manual-sync", {
         method: "POST",
@@ -285,6 +322,28 @@
           </div>
         </div>
         
+        <!-- Speed Chart Toggle -->
+        <div class="mb-3">
+          <button 
+            class="btn btn-ghost btn-sm flex items-center gap-1"
+            onclick={() => showSpeedChart = !showSpeedChart}
+          >
+            <BarChart3 class="size-4" />
+            {#if showSpeedChart}
+              Hide Speed Chart
+            {:else}
+              Show Speed Chart
+            {/if}
+          </button>
+        </div>
+        
+        <!-- Speed Chart -->
+        {#if showSpeedChart && speedData.length > 0}
+          <div class="mb-3">
+            <SyncSpeedChart data={speedData} height="200px" />
+          </div>
+        {/if}
+        
         <!-- Batch Progress -->
         {#if progress.totalBatches > 1}
           <div class="mb-3 text-sm">
@@ -359,6 +418,14 @@
         <div class="mt-3 p-2 bg-green-100 text-green-800 rounded text-sm">
           Successfully synced {progress.syncedTracks} tracks. {progress.failedTracks} tracks unavailable.
         </div>
+        
+        <!-- Show final speed chart for completed sync -->
+        {#if speedData.length > 0}
+          <div class="mt-3">
+            <h5 class="text-sm font-medium mb-2">Sync Performance</h5>
+            <SyncSpeedChart data={speedData} height="200px" />
+          </div>
+        {/if}
       {:else if progress.status === 'failed'}
         <div class="mt-3 p-2 bg-red-100 text-red-800 rounded text-sm">
           Sync operation failed. Please try again.

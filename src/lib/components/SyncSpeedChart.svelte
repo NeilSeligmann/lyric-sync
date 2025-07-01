@@ -1,0 +1,141 @@
+<script lang="ts">
+  import { onMount, onDestroy } from "svelte";
+  import { Chart, registerables } from "chart.js";
+  import "chartjs-adapter-date-fns";
+
+  // Register Chart.js components
+  Chart.register(...registerables);
+
+  interface DataPoint {
+    timestamp: number;
+    tracksPerSecond: number;
+  }
+
+  interface Props {
+    data: DataPoint[];
+    height?: string;
+    width?: string;
+  }
+
+  const { data, height = "300px", width = "100%" }: Props = $props();
+
+  let canvas: HTMLCanvasElement;
+  let chart: Chart | null = null;
+
+  onMount(() => {
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "Tracks/sec",
+            data: data.map(point => ({
+              x: point.timestamp,
+              y: point.tracksPerSecond
+            })),
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "rgb(59, 130, 246)",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "index"
+        },
+        scales: {
+          x: {
+            type: "time",
+            time: {
+              unit: "second",
+              displayFormats: {
+                second: "HH:mm:ss"
+              }
+            },
+            title: {
+              display: true,
+              text: "Time"
+            },
+            grid: {
+              color: "rgba(0, 0, 0, 0.1)"
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "Tracks per Second"
+            },
+            grid: {
+              color: "rgba(0, 0, 0, 0.1)"
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top"
+          },
+          tooltip: {
+            callbacks: {
+              title: (context) => {
+                const date = new Date(context[0].parsed.x);
+                return date.toLocaleTimeString();
+              },
+              label: (context) => {
+                return `Speed: ${context.parsed.y.toFixed(2)} tracks/sec`;
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+
+  // Update chart when data changes
+  $effect(() => {
+    if (chart && data.length > 0) {
+      chart.data.datasets[0].data = data.map(point => ({
+        x: point.timestamp,
+        y: point.tracksPerSecond
+      }));
+      chart.update("none");
+    }
+  });
+
+  onDestroy(() => {
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+  });
+</script>
+
+<div class="chart-container" style="height: {height}; width: {width};">
+  <canvas bind:this={canvas}></canvas>
+</div>
+
+<style>
+  .chart-container {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+</style> 
