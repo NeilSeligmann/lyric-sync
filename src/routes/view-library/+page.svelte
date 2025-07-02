@@ -5,7 +5,7 @@
   import type { ArtistWithAlbumCount } from "$lib/types";
   import { type ToastContext } from "@skeletonlabs/skeleton-svelte";
   import { invalidateAll } from "$app/navigation";
-  import { Download, Search } from "lucide-svelte";
+  import { Download, Search, History } from "lucide-svelte";
   import { getContext } from "svelte";
 
   import type { PageData } from "./$types";
@@ -119,15 +119,36 @@
       <div class="text-lg font-semibold">
         {unsyncedCount} tracks missing lyrics
       </div>
-      <button
-        type="button"
-        class="btn preset-filled-primary-500"
-        disabled={syncing}
-        onclick={syncAllMissingTracks}
+      <div class="flex gap-2">
+        <a
+          href="/view-library/sync-history?library_id={currentLibrary.uuid}"
+          class="btn btn-ghost"
+          title="View sync history for this library"
+        >
+          <History class="size-4" />
+          History
+        </a>
+        <button
+          type="button"
+          class="btn preset-filled-primary-500"
+          disabled={syncing}
+          onclick={syncAllMissingTracks}
+        >
+          <Download class="size-4" />
+          {syncing ? "Starting Sync..." : "Sync All Missing Tracks"}
+        </button>
+      </div>
+    </div>
+  {:else}
+    <div class="mb-4 flex justify-end">
+      <a
+        href="/view-library/sync-history?library_id={currentLibrary.uuid}"
+        class="btn btn-ghost"
+        title="View sync history for this library"
       >
-        <Download class="size-4" />
-        {syncing ? "Starting Sync..." : "Sync All Missing Tracks"}
-      </button>
+        <History class="size-4" />
+        Sync History
+      </a>
     </div>
   {/if}
   

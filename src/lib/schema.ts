@@ -254,3 +254,20 @@ export const insertTrackSchema = createInsertSchema(
     createdAt: true,
     updatedAt: true,
   });
+
+export const syncAttempts = sqliteTable("sync_attempts", {
+  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+  library_id: text().notNull(),
+  start_time: integer({ mode: "timestamp_ms" }).notNull(),
+  end_time: integer({ mode: "timestamp_ms" }),
+  status: text().notNull(), // 'pending' | 'running' | 'completed' | 'failed'
+  sync_type: text().notNull(), // 'bulk' | 'individual' | 'retry' | 'check_existing'
+  total_tracks: integer().notNull(),
+  processed_tracks: integer().notNull(),
+  synced_tracks: integer().notNull(),
+  failed_tracks: integer().notNull(),
+  results_json: text(), // JSON stringified results (optional, can be null)
+});
+
+export const selectSyncAttemptSchema = createSelectSchema(syncAttempts);
+export const insertSyncAttemptSchema = createInsertSchema(syncAttempts).omit({ id: true });

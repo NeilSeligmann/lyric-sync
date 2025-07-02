@@ -1,0 +1,1 @@
+ALTER TABLE `sync_attempts` ADD `sync_type` text NOT NULL;

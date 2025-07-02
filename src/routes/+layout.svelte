@@ -87,6 +87,15 @@
                 View Library
               </a>
             {/if}
+            {#if page.url.pathname !== "/sync-history"}
+              <a
+                class="btn btn-sm variant-ghost-surface"
+                href="/sync-history"
+                rel="noreferrer"
+              >
+                Sync History
+              </a>
+            {/if}
           {/if}
         {:else}
           <a

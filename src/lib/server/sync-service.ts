@@ -10,6 +10,9 @@ import {
 import { processLyrics } from "$lib/server/lyrics-search";
 import { syncProgressManager } from "$lib/server/sync-progress";
 import env from "$lib/server/env";
+import db from "$lib/server/db";
+import { syncAttempts } from "$lib/schema";
+import { eq } from "drizzle-orm";
 
 interface SyncOptions {
   mode: "manual" | "scheduled" | "comprehensive" | "bulk";
@@ -22,6 +25,8 @@ export async function processSyncTracks(
   library: string, 
   options: SyncOptions = { mode: "bulk", maxConcurrency: env.SYNC_CONCURRENCY }
 ): Promise<void> {
+  let syncAttemptId: number | null = null;
+  const startTime = Date.now();
   try {
     let tracksToProcess: any[] = [];
 
@@ -58,6 +63,23 @@ export async function processSyncTracks(
       }
       return;
     }
+
+    // Insert sync_attempts record at start
+    const insertResult = await db.insert(syncAttempts).values({
+      library_id: library,
+      start_time: startTime,
+      status: 'running',
+      sync_type: options.mode === 'bulk' ? 'bulk' : 
+                 options.mode === 'manual' ? 'retry' : 
+                 options.mode === 'scheduled' ? 'scheduled' : 
+                 options.mode === 'comprehensive' ? 'comprehensive' : 'bulk',
+      total_tracks: tracksToProcess.length,
+      processed_tracks: 0,
+      synced_tracks: 0,
+      failed_tracks: 0,
+      results_json: null,
+    }).returning({ id: syncAttempts.id });
+    syncAttemptId = insertResult[0]?.id ?? null;
 
     logger.info(`Processing ${tracksToProcess.length} tracks for library ${library} in mode ${options.mode} with max concurrency: ${options.maxConcurrency || env.SYNC_CONCURRENCY}`);
 
@@ -173,6 +195,13 @@ export async function processSyncTracks(
       
       // Log batch progress
       logger.info(`Processed batch ${Math.floor(i / maxConcurrency) + 1}/${Math.ceil(tracksToProcess.length / maxConcurrency)}. Total processed: ${processedCount}/${tracksToProcess.length}`);
+
+      // After each batch, update processed count in sync_attempts
+      if (syncAttemptId !== null) {
+        await db.update(syncAttempts)
+          .set({ processed_tracks: processedCount, synced_tracks: processedCount - errorCount, failed_tracks: errorCount })
+          .where(eq(syncAttempts.id, syncAttemptId));
+      }
     }
 
     // Mark as completed
@@ -181,6 +210,19 @@ export async function processSyncTracks(
       
       const progress = syncProgressManager.getProgress(progressId);
       logger.info(`Sync completed. Progress ID: ${progressId}, Synced: ${progress?.syncedTracks}, Failed: ${progress?.failedTracks}, Total: ${progress?.totalTracks}`);
+      // Update sync_attempts record as completed
+      if (syncAttemptId !== null) {
+        await db.update(syncAttempts)
+          .set({
+            end_time: new Date(),
+            status: 'completed',
+            processed_tracks: progress?.processedTracks ?? processedCount,
+            synced_tracks: progress?.syncedTracks ?? (processedCount - errorCount),
+            failed_tracks: progress?.failedTracks ?? errorCount,
+            results_json: JSON.stringify(progress?.results ?? []),
+          })
+          .where(eq(syncAttempts.id, syncAttemptId));
+      }
     }
 
     // Log summary
@@ -191,6 +233,15 @@ export async function processSyncTracks(
     logger.error(error);
     if (progressId) {
       syncProgressManager.completeProgress(progressId, 'failed');
+    }
+    // Update sync_attempts record as failed
+    if (syncAttemptId !== null) {
+      await db.update(syncAttempts)
+        .set({
+          end_time: new Date(),
+          status: 'failed',
+        })
+        .where(eq(syncAttempts.id, syncAttemptId));
     }
 
     // Re-throw the error to let the caller handle it
