@@ -8,8 +8,8 @@
   } from "@skeletonlabs/skeleton-svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
-  import { setContext, type Snippet } from "svelte";
   import { LogOut } from "lucide-svelte";
+  import { setContext, type Snippet } from "svelte";
 
   import type { LayoutServerData } from "./$types";
 
@@ -66,7 +66,7 @@
             <LogOut class="size-4" />
           </button>
         {/if}
-        
+
         {#if data.serverConfiguration}
           {#if data.currentLibrary}
             {#if page.url.pathname !== "/select-library"}

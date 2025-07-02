@@ -12,12 +12,13 @@ export const GET: RequestHandler = async ({ url }) => {
 
   try {
     const stats = await getSyncStats(library);
-    
+
     logger.info(`Retrieved sync stats for library ${library}:`, stats);
-    
+
     return new Response(JSON.stringify({ stats }));
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Error retrieving sync stats for library ${library}:`, error);
     return new Response(JSON.stringify({ error: "Failed to retrieve sync stats" }), { status: 500 });
   }
-}; 
+};

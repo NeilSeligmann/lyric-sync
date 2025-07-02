@@ -4,7 +4,7 @@ export interface ActiveTrack {
   trackTitle: string;
   artistName: string;
   startTime: number;
-  status: 'processing' | 'completed' | 'failed';
+  status: "processing" | "completed" | "failed";
   result?: SyncTrackResponse;
 }
 
@@ -15,17 +15,17 @@ export interface SyncProgress {
   processedTracks: number;
   syncedTracks: number;
   failedTracks: number;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   startTime: number; // Unix timestamp in milliseconds
   endTime?: number; // Unix timestamp in milliseconds
   results: Array<SyncTrackResponse>;
-  
+
   // Multi-threading support
   activeTracks: Array<ActiveTrack>; // Currently processing tracks
   maxConcurrency: number; // Number of tracks being processed simultaneously
   currentBatch: number; // Current batch number
   totalBatches: number; // Total number of batches
-  
+
   // Legacy fields for backward compatibility
   currentTrack?: string;
   currentArtist?: string;
@@ -37,7 +37,7 @@ class SyncProgressManager {
   createProgress(libraryId: string, totalTracks: number, maxConcurrency: number = 4): string {
     const id = `sync_${libraryId}_${Date.now()}`;
     const totalBatches = Math.ceil(totalTracks / maxConcurrency);
-    
+
     const progress: SyncProgress = {
       id,
       libraryId,
@@ -45,7 +45,7 @@ class SyncProgressManager {
       processedTracks: 0,
       syncedTracks: 0,
       failedTracks: 0,
-      status: 'pending',
+      status: "pending",
       startTime: Date.now(), // Store as timestamp
       results: [],
       activeTracks: [],
@@ -53,7 +53,7 @@ class SyncProgressManager {
       currentBatch: 0,
       totalBatches,
     };
-    
+
     this.progressMap.set(id, progress);
     return id;
   }
@@ -64,7 +64,7 @@ class SyncProgressManager {
 
   getProgressByLibrary(libraryId: string): SyncProgress | undefined {
     return Array.from(this.progressMap.values())
-      .find(p => p.libraryId === libraryId && p.status === 'running');
+      .find(p => p.libraryId === libraryId && p.status === "running");
   }
 
   updateProgress(id: string, updates: Partial<SyncProgress>): void {
@@ -79,17 +79,17 @@ class SyncProgressManager {
     const progress = this.progressMap.get(id);
     if (progress) {
       progress.currentBatch = batchNumber;
-      
+
       // Add tracks to active tracks
       const newActiveTracks: ActiveTrack[] = tracks.map(track => ({
         trackTitle: track.title,
         artistName: track.artistInfo.title,
         startTime: Date.now(),
-        status: 'processing'
+        status: "processing",
       }));
-      
+
       progress.activeTracks = newActiveTracks;
-      
+
       // Update legacy fields for backward compatibility
       if (newActiveTracks.length > 0) {
         progress.currentTrack = newActiveTracks[0].trackTitle;
@@ -103,30 +103,31 @@ class SyncProgressManager {
     const progress = this.progressMap.get(id);
     if (progress) {
       // Find and update the active track
-      const activeTrack = progress.activeTracks.find(track => 
-        track.trackTitle === trackTitle && track.artistName === artistName
+      const activeTrack = progress.activeTracks.find(track =>
+        track.trackTitle === trackTitle && track.artistName === artistName,
       );
-      
+
       if (activeTrack) {
-        activeTrack.status = result.synced ? 'completed' : 'failed';
+        activeTrack.status = result.synced ? "completed" : "failed";
         activeTrack.result = result;
       }
-      
+
       // Update overall progress
       progress.processedTracks++;
       progress.results.push(result);
-      
+
       if (result.synced) {
         progress.syncedTracks++;
-      } else {
+      }
+      else {
         progress.failedTracks++;
       }
-      
+
       // Remove completed track from active tracks
-      progress.activeTracks = progress.activeTracks.filter(track => 
-        !(track.trackTitle === trackTitle && track.artistName === artistName)
+      progress.activeTracks = progress.activeTracks.filter(track =>
+        !(track.trackTitle === trackTitle && track.artistName === artistName),
       );
-      
+
       // Update legacy fields for backward compatibility
       if (progress.activeTracks.length > 0) {
         progress.currentTrack = progress.activeTracks[0].trackTitle;
@@ -139,23 +140,25 @@ class SyncProgressManager {
   incrementProcessed(id: string, result: SyncTrackResponse, trackTitle?: string, artistName?: string): void {
     if (trackTitle && artistName) {
       this.completeTrack(id, trackTitle, artistName, result);
-    } else {
+    }
+    else {
       // Fallback to old behavior
       const progress = this.progressMap.get(id);
       if (progress) {
         progress.processedTracks++;
         progress.results.push(result);
-        
+
         if (result.synced) {
           progress.syncedTracks++;
-        } else {
+        }
+        else {
           progress.failedTracks++;
         }
       }
     }
   }
 
-  completeProgress(id: string, status: 'completed' | 'failed' = 'completed'): void {
+  completeProgress(id: string, status: "completed" | "failed" = "completed"): void {
     const progress = this.progressMap.get(id);
     if (progress) {
       progress.status = status;
@@ -185,13 +188,13 @@ class SyncProgressManager {
       return { activeCount: 0, completedCount: 0, failedCount: 0, avgProcessingTime: 0 };
     }
 
-    const activeCount = progress.activeTracks.filter(track => track.status === 'processing').length;
-    const completedCount = progress.activeTracks.filter(track => track.status === 'completed').length;
-    const failedCount = progress.activeTracks.filter(track => track.status === 'failed').length;
+    const activeCount = progress.activeTracks.filter(track => track.status === "processing").length;
+    const completedCount = progress.activeTracks.filter(track => track.status === "completed").length;
+    const failedCount = progress.activeTracks.filter(track => track.status === "failed").length;
 
     // Calculate average processing time from completed tracks
-    const completedTracks = progress.activeTracks.filter(track => track.status !== 'processing');
-    const avgProcessingTime = completedTracks.length > 0 
+    const completedTracks = progress.activeTracks.filter(track => track.status !== "processing");
+    const avgProcessingTime = completedTracks.length > 0
       ? completedTracks.reduce((sum, track) => sum + (Date.now() - track.startTime), 0) / completedTracks.length
       : 0;
 
@@ -199,9 +202,9 @@ class SyncProgressManager {
       activeCount,
       completedCount,
       failedCount,
-      avgProcessingTime
+      avgProcessingTime,
     };
   }
 }
 
-export const syncProgressManager = new SyncProgressManager(); 
+export const syncProgressManager = new SyncProgressManager();

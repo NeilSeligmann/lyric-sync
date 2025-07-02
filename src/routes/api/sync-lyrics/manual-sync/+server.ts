@@ -19,9 +19,9 @@ export const POST: RequestHandler = async ({ request }) => {
     // Check if there's already a sync in progress for this library
     const existingProgress = syncProgressManager.getProgressByLibrary(library);
     if (existingProgress) {
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         error: "A sync operation is already in progress for this library",
-        progressId: existingProgress.id 
+        progressId: existingProgress.id,
       }), { status: 409 });
     }
 
@@ -33,14 +33,14 @@ export const POST: RequestHandler = async ({ request }) => {
     // Start the sync process asynchronously
     processSyncTracks(null, [], library, { mode: syncMode });
 
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       message: `Manual sync started in ${mode} mode`,
       mode,
-      library
+      library,
     }));
-
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Error starting manual sync for library ${library}:`, error);
     return new Response(JSON.stringify({ error: "Failed to start manual sync" }), { status: 500 });
   }
-}; 
+};

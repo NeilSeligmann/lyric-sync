@@ -1,8 +1,9 @@
-import type { ArtistWithAlbumCount, ServerLoadValues } from "$lib/types";
-import { getAllArtistsInLibraryWithAlbumCounts } from "$lib/server/db/query-utils";
-import { redirect } from "@sveltejs/kit";
+import type { ServerLoadValues } from "$lib/types";
 
-export const load = async ({ parent }: { parent: () => Promise<ServerLoadValues> }) => {
+import { redirect } from "@sveltejs/kit";
+import { getAllArtistsInLibraryWithAlbumCounts } from "$lib/server/db/query-utils";
+
+export async function load({ parent }: { parent: () => Promise<ServerLoadValues> }) {
   const { currentLibrary, serverConfiguration }: ServerLoadValues = await parent();
 
   // If no server configuration, redirect to add server
@@ -39,4 +40,4 @@ export const load = async ({ parent }: { parent: () => Promise<ServerLoadValues>
     serverConfiguration,
     returnedArtists,
   };
-}; 
+}

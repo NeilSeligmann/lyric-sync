@@ -2,8 +2,8 @@ import type { InferredSelectLibrarySchema, InferredSelectServerSchema, ServerLoa
 
 import { libraries } from "$lib/schema";
 import db from "$lib/server/db";
-import { eq } from "drizzle-orm";
 import { plexSyncService } from "$lib/server/plex-sync-service";
+import { eq } from "drizzle-orm";
 
 import type { LayoutServerLoad } from "./$types";
 
@@ -24,7 +24,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
     // Use the new Plex sync service to sync libraries
     try {
       await plexSyncService.syncPlexData({ mode: "libraries" });
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Error syncing Plex libraries:", error);
     }
 
@@ -38,7 +39,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
       const dummyLibrary: InferredSelectLibrarySchema = JSON.parse(JSON.stringify(updatedLibraries[0]));
       dummyLibrary.key = "hide_me";
       updatedLibraries.unshift(dummyLibrary);
-      
+
       defaultValues.libraries = updatedLibraries;
       defaultValues.currentLibrary = updatedLibraries.find(library => library.currentLibrary);
     }

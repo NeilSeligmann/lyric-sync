@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
-  import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+
+  import type { PageData } from "./$types";
 
   const { data }: { data: PageData } = $props();
 
@@ -23,7 +23,7 @@
       const credentials = btoa(`${username}:${password}`);
       const response = await fetch(window.location.href, {
         headers: {
-          "Authorization": `Basic ${credentials}`,
+          Authorization: `Basic ${credentials}`,
         },
       });
 
@@ -32,10 +32,12 @@
         sessionStorage.setItem("auth_credentials", credentials);
         // Reload the page to apply the new auth
         window.location.reload();
-      } else {
+      }
+      else {
         error = "Invalid username or password";
       }
-    } catch (err) {
+    }
+    catch (err) {
       error = "Login failed. Please try again.";
       console.error("Login error:", err);
     }
@@ -48,9 +50,9 @@
       // Try to authenticate with stored credentials
       fetch(window.location.href, {
         headers: {
-          "Authorization": `Basic ${storedCredentials}`,
+          Authorization: `Basic ${storedCredentials}`,
         },
-      }).then(response => {
+      }).then((response) => {
         if (!response.ok) {
           // Clear invalid credentials
           sessionStorage.removeItem("auth_credentials");
@@ -109,7 +111,7 @@
   <!-- Original page content -->
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Welcome to Lyric Sync</h1>
-    
+
     {#if data.auth?.authenticated && data.auth.username}
       <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
         Logged in as: <strong>{data.auth.username}</strong>

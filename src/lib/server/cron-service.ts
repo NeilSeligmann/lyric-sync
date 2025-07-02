@@ -1,9 +1,10 @@
-import cron from "node-cron";
 import { logger } from "$lib/logger";
 import { getAllLibrariesInServer } from "$lib/server/db/query-utils";
-import { processSyncTracks } from "$lib/server/sync-service";
-import { plexSyncService } from "./plex-sync-service";
 import env from "$lib/server/env";
+import { processSyncTracks } from "$lib/server/sync-service";
+import cron from "node-cron";
+
+import { plexSyncService } from "./plex-sync-service";
 
 export class CronService {
   private static instance: CronService;
@@ -32,7 +33,7 @@ export class CronService {
       await this.runScheduledSync();
     }, {
       scheduled: true,
-      timezone: env.CRON_TIMEZONE
+      timezone: env.CRON_TIMEZONE,
     });
 
     // Run every 12 hours - more comprehensive sync
@@ -41,7 +42,7 @@ export class CronService {
       await this.runComprehensiveSync();
     }, {
       scheduled: true,
-      timezone: env.CRON_TIMEZONE
+      timezone: env.CRON_TIMEZONE,
     });
 
     // Run every 6 hours - sync Plex library with database
@@ -50,7 +51,7 @@ export class CronService {
       await this.runPlexLibrarySync();
     }, {
       scheduled: true,
-      timezone: env.CRON_TIMEZONE
+      timezone: env.CRON_TIMEZONE,
     });
 
     this.isInitialized = true;
@@ -60,16 +61,18 @@ export class CronService {
   private async runScheduledSync(): Promise<void> {
     try {
       const libraries = await getAllLibrariesInServer();
-      
+
       for (const library of libraries) {
         try {
           logger.info(`Running scheduled sync for library: ${library.title} (${library.uuid})`);
           await processSyncTracks(null, [], library.uuid, { mode: "scheduled" });
-        } catch (error) {
+        }
+        catch (error) {
           logger.error(`Error in scheduled sync for library ${library.uuid}:`, error);
         }
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error in scheduled sync job:", error);
     }
   }
@@ -77,16 +80,18 @@ export class CronService {
   private async runComprehensiveSync(): Promise<void> {
     try {
       const libraries = await getAllLibrariesInServer();
-      
+
       for (const library of libraries) {
         try {
           logger.info(`Running comprehensive sync for library: ${library.title} (${library.uuid})`);
           await processSyncTracks(null, [], library.uuid, { mode: "comprehensive" });
-        } catch (error) {
+        }
+        catch (error) {
           logger.error(`Error in comprehensive sync for library ${library.uuid}:`, error);
         }
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error in comprehensive sync job:", error);
     }
   }
@@ -96,7 +101,8 @@ export class CronService {
       logger.info("Starting Plex library sync with database...");
       await plexSyncService.syncPlexData({ mode: "full" });
       logger.info("Plex library sync completed successfully");
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error in Plex library sync job:", error);
     }
   }
@@ -104,10 +110,11 @@ export class CronService {
   // Manual trigger for testing
   async triggerManualSync(libraryId?: string): Promise<void> {
     logger.info("Manual sync triggered");
-    
+
     if (libraryId) {
       await processSyncTracks(null, [], libraryId, { mode: "manual" });
-    } else {
+    }
+    else {
       await this.runScheduledSync();
     }
   }
@@ -115,15 +122,16 @@ export class CronService {
   // Manual trigger for Plex sync
   async triggerManualPlexSync(mode: "libraries" | "library_content" | "full" = "full", libraryId?: string): Promise<void> {
     logger.info(`Manual Plex sync triggered with mode: ${mode}`);
-    
+
     try {
       await plexSyncService.syncPlexData({ mode, libraryId });
       logger.info("Manual Plex sync completed successfully");
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error in manual Plex sync:", error);
       throw error;
     }
   }
 }
 
-export const cronService = CronService.getInstance(); 
+export const cronService = CronService.getInstance();

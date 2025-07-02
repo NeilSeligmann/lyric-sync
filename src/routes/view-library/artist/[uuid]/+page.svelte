@@ -2,7 +2,6 @@
   import type { InferredSelectArtistSchema } from "$lib/types";
 
   import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { page } from "$app/state";
   import AlbumCard from "$lib/components/AlbumCard.svelte";
   import { getArtistImageUrl } from "$lib/image-utils";
   import { fade } from "svelte/transition";
@@ -16,8 +15,6 @@
     return data.returnedArtist;
   });
 
-  const baseURL: string = `${data.serverConfiguration?.hostname}:${data.serverConfiguration?.port}`;
-  const plexAuthToken: string = `?X-Plex-Token=${data.serverConfiguration?.xPlexToken}`;
   let loading: boolean = $state(true);
 
   function imageLoaded(): void {

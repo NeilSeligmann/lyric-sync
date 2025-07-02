@@ -16,7 +16,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
   DATABASE_URL: z.string().url(),
   NO_PLEX: z.string().optional(),
-  SYNC_CONCURRENCY: z.string().transform((val) => parseInt(val, 10)).pipe(z.number().min(1).max(16)).default("4"),
+  SYNC_CONCURRENCY: z.string().transform(val => Number.parseInt(val, 10)).pipe(z.number().min(1).max(16)).default("4"),
   CRON_TIMEZONE: z.string().default("UTC"),
   AUTH_USERNAME: z.string().optional(),
   AUTH_PASSWORD: z.string().optional(),
@@ -35,7 +35,7 @@ const EnvSchema = z.object({
   else if (!input.DATABASE_URL) {
     input.DATABASE_URL = "file:dev.db";
   }
-  
+
   // Validate that if one auth credential is set, both must be set
   if ((input.AUTH_USERNAME && !input.AUTH_PASSWORD) || (!input.AUTH_USERNAME && input.AUTH_PASSWORD)) {
     ctx.addIssue({

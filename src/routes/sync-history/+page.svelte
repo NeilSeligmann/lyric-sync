@@ -1,7 +1,6 @@
 <script lang="ts">
+  import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, Clock, Download, Filter, RefreshCw, XCircle } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { AppBar, ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { Calendar, Filter, RefreshCw, ChevronLeft, ChevronRight, Clock, CheckCircle, XCircle, AlertCircle, Download } from "lucide-svelte";
 
   interface SyncAttempt {
     id: number;
@@ -9,8 +8,8 @@
     library_title: string | null;
     start_time: number;
     end_time: number | null;
-    status: 'pending' | 'running' | 'completed' | 'failed';
-    sync_type: 'bulk' | 'individual' | 'retry' | 'check_existing' | 'scheduled' | 'comprehensive';
+    status: "pending" | "running" | "completed" | "failed";
+    sync_type: "bulk" | "individual" | "retry" | "check_existing" | "scheduled" | "comprehensive";
     total_tracks: number;
     processed_tracks: number;
     synced_tracks: number;
@@ -48,14 +47,14 @@
 
   // Pagination state
   let currentPage = 1;
-  let pageSize = 20;
+  const pageSize = 20;
 
   const statusOptions = [
     { value: "", label: "All Statuses" },
     { value: "pending", label: "Pending" },
     { value: "running", label: "Running" },
     { value: "completed", label: "Completed" },
-    { value: "failed", label: "Failed" }
+    { value: "failed", label: "Failed" },
   ];
 
   const syncTypeOptions = [
@@ -65,14 +64,14 @@
     { value: "retry", label: "Retry Failed" },
     { value: "check_existing", label: "Check Existing" },
     { value: "scheduled", label: "Scheduled" },
-    { value: "comprehensive", label: "Comprehensive" }
+    { value: "comprehensive", label: "Comprehensive" },
   ];
 
   const orderByOptions = [
     { value: "start_time", label: "Start Time" },
     { value: "end_time", label: "End Time" },
     { value: "total_tracks", label: "Total Tracks" },
-    { value: "synced_tracks", label: "Synced Tracks" }
+    { value: "synced_tracks", label: "Synced Tracks" },
   ];
 
   async function fetchSyncAttempts() {
@@ -84,17 +83,22 @@
         page: currentPage.toString(),
         limit: pageSize.toString(),
         order_by: orderBy,
-        order_direction: orderDirection
+        order_direction: orderDirection,
       });
 
-      if (statusFilter) params.append("status", statusFilter);
-      if (syncTypeFilter) params.append("sync_type", syncTypeFilter);
-      if (libraryFilter) params.append("library_id", libraryFilter);
-      if (startDateFilter) params.append("start_date", startDateFilter);
-      if (endDateFilter) params.append("end_date", endDateFilter);
+      if (statusFilter)
+        params.append("status", statusFilter);
+      if (syncTypeFilter)
+        params.append("sync_type", syncTypeFilter);
+      if (libraryFilter)
+        params.append("library_id", libraryFilter);
+      if (startDateFilter)
+        params.append("start_date", startDateFilter);
+      if (endDateFilter)
+        params.append("end_date", endDateFilter);
 
       const response = await fetch(`/api/sync-attempts?${params}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -102,23 +106,25 @@
       const data = await response.json();
       attempts = data.attempts;
       pagination = data.pagination;
-    } catch (err) {
+    }
+    catch (err) {
       error = err instanceof Error ? err.message : "Failed to fetch sync attempts";
       console.error("Error fetching sync attempts:", err);
-    } finally {
+    }
+    finally {
       loading = false;
     }
   }
 
   function getStatusIcon(status: string) {
     switch (status) {
-      case 'running':
+      case "running":
         return Download;
-      case 'completed':
+      case "completed":
         return CheckCircle;
-      case 'failed':
+      case "failed":
         return XCircle;
-      case 'pending':
+      case "pending":
         return Clock;
       default:
         return AlertCircle;
@@ -127,16 +133,16 @@
 
   function getStatusColor(status: string) {
     switch (status) {
-      case 'running':
-        return 'text-blue-500';
-      case 'completed':
-        return 'text-green-500';
-      case 'failed':
-        return 'text-red-500';
-      case 'pending':
-        return 'text-yellow-500';
+      case "running":
+        return "text-blue-500";
+      case "completed":
+        return "text-green-500";
+      case "failed":
+        return "text-red-500";
+      case "pending":
+        return "text-yellow-500";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   }
 
@@ -178,16 +184,12 @@
 </svelte:head>
 
 <div class="container mx-auto p-4 space-y-6">
-  <AppBar>
-    <svelte:fragment slot="lead">
-      <h1 class="text-2xl font-bold">Sync History</h1>
-    </svelte:fragment>
-    <svelte:fragment slot="trail">
-      <button class="btn btn-ghost btn-sm" on:click={fetchSyncAttempts} disabled={loading}>
-        <RefreshCw class="size-4" />
-      </button>
-    </svelte:fragment>
-  </AppBar>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Sync History</h1>
+    <button class="btn btn-ghost btn-sm" on:click={fetchSyncAttempts} disabled={loading}>
+      <RefreshCw class="size-4" />
+    </button>
+  </div>
 
   <!-- Filters -->
   <div class="card p-4">
@@ -195,11 +197,11 @@
       <Filter class="size-5" />
       <h2 class="text-lg font-semibold">Filters</h2>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div>
-        <label class="label">Status</label>
-        <select bind:value={statusFilter} class="select select-filled">
+        <label for="status-filter" class="label">Status</label>
+        <select id="status-filter" bind:value={statusFilter} class="select select-filled">
           {#each statusOptions as option}
             <option value={option.value}>{option.label}</option>
           {/each}
@@ -207,8 +209,8 @@
       </div>
 
       <div>
-        <label class="label">Sync Type</label>
-        <select bind:value={syncTypeFilter} class="select select-filled">
+        <label for="sync-type-filter" class="label">Sync Type</label>
+        <select id="sync-type-filter" bind:value={syncTypeFilter} class="select select-filled">
           {#each syncTypeOptions as option}
             <option value={option.value}>{option.label}</option>
           {/each}
@@ -216,27 +218,30 @@
       </div>
 
       <div>
-        <label class="label">Library ID</label>
-        <input 
-          bind:value={libraryFilter} 
+        <label for="library-filter" class="label">Library ID</label>
+        <input
+          id="library-filter"
+          bind:value={libraryFilter}
           class="input input-filled"
           placeholder="Filter by library ID"
         />
       </div>
 
       <div>
-        <label class="label">Start Date</label>
-        <input 
-          bind:value={startDateFilter} 
+        <label for="start-date-filter" class="label">Start Date</label>
+        <input
+          id="start-date-filter"
+          bind:value={startDateFilter}
           class="input input-filled"
           type="date"
         />
       </div>
 
       <div>
-        <label class="label">End Date</label>
-        <input 
-          bind:value={endDateFilter} 
+        <label for="end-date-filter" class="label">End Date</label>
+        <input
+          id="end-date-filter"
+          bind:value={endDateFilter}
           class="input input-filled"
           type="date"
         />
@@ -245,8 +250,8 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
       <div>
-        <label class="label">Order By</label>
-        <select bind:value={orderBy} class="select select-filled">
+        <label for="order-by-filter" class="label">Order By</label>
+        <select id="order-by-filter" bind:value={orderBy} class="select select-filled">
           {#each orderByOptions as option}
             <option value={option.value}>{option.label}</option>
           {/each}
@@ -254,8 +259,8 @@
       </div>
 
       <div>
-        <label class="label">Order Direction</label>
-        <select bind:value={orderDirection} class="select select-filled">
+        <label for="order-direction-filter" class="label">Order Direction</label>
+        <select id="order-direction-filter" bind:value={orderDirection} class="select select-filled">
           <option value="desc">Descending</option>
           <option value="asc">Ascending</option>
         </select>
@@ -315,19 +320,19 @@
                 {attempt.library_title || attempt.library_id}
               </td>
               <td>
-                <span class="capitalize">{attempt.sync_type.replace('_', ' ')}</span>
+                <span class="capitalize">{attempt.sync_type.replace("_", " ")}</span>
               </td>
               <td>
                 {formatDate(attempt.start_time_formatted)}
               </td>
               <td>
-                {attempt.duration_formatted || '-'}
+                {attempt.duration_formatted || "-"}
               </td>
               <td>{attempt.total_tracks}</td>
               <td class="text-green-600">{attempt.synced_tracks}</td>
               <td class="text-red-600">{attempt.failed_tracks}</td>
               <td>
-                <span class="font-semibold {attempt.success_rate >= 80 ? 'text-green-600' : attempt.success_rate >= 50 ? 'text-yellow-600' : 'text-red-600'}">
+                <span class="font-semibold {attempt.success_rate >= 80 ? "text-green-600" : attempt.success_rate >= 50 ? "text-yellow-600" : "text-red-600"}">
                   {attempt.success_rate}%
                 </span>
               </td>
@@ -342,23 +347,23 @@
           <div class="text-sm text-gray-600">
             Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total_count)} of {pagination.total_count} results
           </div>
-          
+
           <div class="flex items-center gap-2">
-            <button 
-              class="btn btn-ghost btn-sm" 
-              on:click={() => goToPage(pagination!.page - 1)} 
+            <button
+              class="btn btn-ghost btn-sm"
+              on:click={() => goToPage(pagination!.page - 1)}
               disabled={!pagination.has_prev}
             >
               <ChevronLeft class="size-4" />
             </button>
-            
+
             <span class="text-sm">
               Page {pagination.page} of {pagination.total_pages}
             </span>
-            
-            <button 
-              class="btn btn-ghost btn-sm" 
-              on:click={() => goToPage(pagination!.page + 1)} 
+
+            <button
+              class="btn btn-ghost btn-sm"
+              on:click={() => goToPage(pagination!.page + 1)}
               disabled={!pagination.has_next}
             >
               <ChevronRight class="size-4" />
@@ -368,4 +373,4 @@
       {/if}
     {/if}
   </div>
-</div> 
+</div>

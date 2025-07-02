@@ -2,7 +2,7 @@ import type { RequestHandler } from "@sveltejs/kit";
 import type { CheckTrackLyricsOnDiskResponse, InferredSelectTrackSchema } from "$lib/types";
 
 import { logger } from "$lib/logger";
-import { tracks, syncAttempts } from "$lib/schema";
+import { syncAttempts, tracks } from "$lib/schema";
 import db from "$lib/server/db";
 import { and, eq, sql } from "drizzle-orm";
 import { toSnakeCase } from "drizzle-orm/casing";
@@ -30,14 +30,14 @@ export const GET: RequestHandler = async ({ url }) => {
   // Create sync attempt record for check operation
   let syncAttemptId: number | null = null;
   const startTime = Date.now();
-  
+
   try {
     // Insert sync_attempts record for check operation
     const insertResult = await db.insert(syncAttempts).values({
       library_id: library,
-      start_time: startTime,
-      status: 'running',
-      sync_type: 'check_existing',
+      start_time: new Date(startTime),
+      status: "running",
+      sync_type: "check_existing",
       total_tracks: 1,
       processed_tracks: 0,
       synced_tracks: 0,
@@ -99,7 +99,7 @@ export const GET: RequestHandler = async ({ url }) => {
           await db.update(syncAttempts)
             .set({
               end_time: new Date(),
-              status: 'completed',
+              status: "completed",
               processed_tracks: 1,
               synced_tracks: checkTrackResponse.lyricsExist ? 1 : 0,
               failed_tracks: checkTrackResponse.lyricsExist ? 0 : 1,
@@ -107,7 +107,7 @@ export const GET: RequestHandler = async ({ url }) => {
                 track_title: trackResponse.title,
                 synced: checkTrackResponse.lyricsExist,
                 plain_lyrics: checkTrackResponse.plainLyrics,
-                message: checkTrackResponse.message
+                message: checkTrackResponse.message,
               }]),
             })
             .where(eq(syncAttempts.id, syncAttemptId));
@@ -116,38 +116,39 @@ export const GET: RequestHandler = async ({ url }) => {
     }
     else {
       checkTrackResponse.message = "Missing library or track UUID in request";
-      
+
       // Update sync attempt record as failed
       if (syncAttemptId !== null) {
         await db.update(syncAttempts)
           .set({
             end_time: new Date(),
-            status: 'failed',
+            status: "failed",
             processed_tracks: 1,
             synced_tracks: 0,
             failed_tracks: 1,
             results_json: JSON.stringify([{
-              error: checkTrackResponse.message
+              error: checkTrackResponse.message,
             }]),
           })
           .where(eq(syncAttempts.id, syncAttemptId));
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Error checking for lyrics on disk:`, error);
     checkTrackResponse.message = "Error checking for lyrics on disk";
-    
+
     // Update sync attempt record as failed
     if (syncAttemptId !== null) {
       await db.update(syncAttempts)
         .set({
           end_time: new Date(),
-          status: 'failed',
+          status: "failed",
           processed_tracks: 1,
           synced_tracks: 0,
           failed_tracks: 1,
           results_json: JSON.stringify([{
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error",
           }]),
         })
         .where(eq(syncAttempts.id, syncAttemptId));

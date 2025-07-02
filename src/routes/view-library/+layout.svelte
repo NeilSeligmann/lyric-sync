@@ -1,8 +1,9 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   import { Navigation } from "@skeletonlabs/skeleton-svelte";
   import { page } from "$app/state";
   import { Music, Settings } from "lucide-svelte";
-  import type { Snippet } from "svelte";
 
   const { children }: { children: Snippet } = $props();
 </script>

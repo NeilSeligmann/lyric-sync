@@ -12,8 +12,6 @@
   const { data }: { data: PageData } = $props();
   // TODO: Move this to the server side maybe...
 
-  const baseURL: string = `${data.serverConfiguration?.hostname}:${data.serverConfiguration?.port}`;
-  const plexAuthToken: string = `?X-Plex-Token=${data.serverConfiguration?.xPlexToken}`;
   let loading: boolean = $state(true);
 
   const {

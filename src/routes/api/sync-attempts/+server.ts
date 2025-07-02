@@ -1,53 +1,54 @@
 import type { RequestHandler } from "@sveltejs/kit";
+
 import { logger } from "$lib/logger";
-import { syncAttempts, libraries } from "$lib/schema";
+import { libraries, syncAttempts } from "$lib/schema";
 import db from "$lib/server/db";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 interface SyncAttemptsQuery {
   page: number;
   limit: number;
-  status?: 'pending' | 'running' | 'completed' | 'failed';
-  sync_type?: 'bulk' | 'individual' | 'retry' | 'check_existing' | 'scheduled' | 'comprehensive';
+  status?: "pending" | "running" | "completed" | "failed";
+  sync_type?: "bulk" | "individual" | "retry" | "check_existing" | "scheduled" | "comprehensive";
   library_id?: string;
   start_date?: string; // ISO date string
   end_date?: string; // ISO date string
-  order_by: 'start_time' | 'end_time' | 'total_tracks' | 'synced_tracks';
-  order_direction: 'asc' | 'desc';
+  order_by: "start_time" | "end_time" | "total_tracks" | "synced_tracks";
+  order_direction: "asc" | "desc";
 }
 
 export const GET: RequestHandler = async ({ url }) => {
   try {
     // Parse query parameters
     const query: SyncAttemptsQuery = {
-      page: parseInt(url.searchParams.get("page") || "1"),
-      limit: Math.min(parseInt(url.searchParams.get("limit") || "20"), 100), // Max 100 per page
+      page: Number.parseInt(url.searchParams.get("page") || "1"),
+      limit: Math.min(Number.parseInt(url.searchParams.get("limit") || "20"), 100), // Max 100 per page
       status: url.searchParams.get("status") as any,
       sync_type: url.searchParams.get("sync_type") as any,
       library_id: url.searchParams.get("library_id") || undefined,
       start_date: url.searchParams.get("start_date") || undefined,
       end_date: url.searchParams.get("end_date") || undefined,
       order_by: (url.searchParams.get("order_by") as any) || "start_time",
-      order_direction: (url.searchParams.get("order_direction") as any) || "desc"
+      order_direction: (url.searchParams.get("order_direction") as any) || "desc",
     };
 
     // Validate status if provided
-    if (query.status && !['pending', 'running', 'completed', 'failed'].includes(query.status)) {
+    if (query.status && !["pending", "running", "completed", "failed"].includes(query.status)) {
       return new Response(JSON.stringify({ error: "Invalid status parameter" }), { status: 400 });
     }
 
     // Validate sync_type if provided
-    if (query.sync_type && !['bulk', 'individual', 'retry', 'check_existing', 'scheduled', 'comprehensive'].includes(query.sync_type)) {
+    if (query.sync_type && !["bulk", "individual", "retry", "check_existing", "scheduled", "comprehensive"].includes(query.sync_type)) {
       return new Response(JSON.stringify({ error: "Invalid sync_type parameter" }), { status: 400 });
     }
 
     // Validate order_by if provided
-    if (!['start_time', 'end_time', 'total_tracks', 'synced_tracks'].includes(query.order_by)) {
+    if (!["start_time", "end_time", "total_tracks", "synced_tracks"].includes(query.order_by)) {
       return new Response(JSON.stringify({ error: "Invalid order_by parameter" }), { status: 400 });
     }
 
     // Validate order_direction if provided
-    if (!['asc', 'desc'].includes(query.order_direction)) {
+    if (!["asc", "desc"].includes(query.order_direction)) {
       return new Response(JSON.stringify({ error: "Invalid order_direction parameter" }), { status: 400 });
     }
 
@@ -79,17 +80,17 @@ export const GET: RequestHandler = async ({ url }) => {
     // Build order by clause
     let orderByClause;
     switch (query.order_by) {
-      case 'start_time':
-        orderByClause = query.order_direction === 'asc' ? asc(syncAttempts.start_time) : desc(syncAttempts.start_time);
+      case "start_time":
+        orderByClause = query.order_direction === "asc" ? asc(syncAttempts.start_time) : desc(syncAttempts.start_time);
         break;
-      case 'end_time':
-        orderByClause = query.order_direction === 'asc' ? asc(syncAttempts.end_time) : desc(syncAttempts.end_time);
+      case "end_time":
+        orderByClause = query.order_direction === "asc" ? asc(syncAttempts.end_time) : desc(syncAttempts.end_time);
         break;
-      case 'total_tracks':
-        orderByClause = query.order_direction === 'asc' ? asc(syncAttempts.total_tracks) : desc(syncAttempts.total_tracks);
+      case "total_tracks":
+        orderByClause = query.order_direction === "asc" ? asc(syncAttempts.total_tracks) : desc(syncAttempts.total_tracks);
         break;
-      case 'synced_tracks':
-        orderByClause = query.order_direction === 'asc' ? asc(syncAttempts.synced_tracks) : desc(syncAttempts.synced_tracks);
+      case "synced_tracks":
+        orderByClause = query.order_direction === "asc" ? asc(syncAttempts.synced_tracks) : desc(syncAttempts.synced_tracks);
         break;
       default:
         orderByClause = desc(syncAttempts.start_time);
@@ -121,20 +122,20 @@ export const GET: RequestHandler = async ({ url }) => {
       failed_tracks: syncAttempts.failed_tracks,
       results_json: syncAttempts.results_json,
     })
-    .from(syncAttempts)
-    .leftJoin(libraries, eq(syncAttempts.library_id, libraries.uuid))
-    .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-    .orderBy(orderByClause)
-    .limit(query.limit)
-    .offset(offset);
+      .from(syncAttempts)
+      .leftJoin(libraries, eq(syncAttempts.library_id, libraries.uuid))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+      .orderBy(orderByClause)
+      .limit(query.limit)
+      .offset(offset);
 
     // Calculate success rate and duration for each attempt
-    const attemptsWithStats = attempts.map(attempt => {
-      const successRate = attempt.total_tracks > 0 
-        ? Math.round((attempt.synced_tracks / attempt.total_tracks) * 100) 
+    const attemptsWithStats = attempts.map((attempt) => {
+      const successRate = attempt.total_tracks > 0
+        ? Math.round((attempt.synced_tracks / attempt.total_tracks) * 100)
         : 0;
-      
-      const duration = attempt.end_time && attempt.start_time 
+
+      const duration = attempt.end_time && attempt.start_time
         ? (attempt.end_time.getTime() - attempt.start_time.getTime())
         : null;
 
@@ -166,10 +167,10 @@ export const GET: RequestHandler = async ({ url }) => {
         end_date: query.end_date,
         order_by: query.order_by,
         order_direction: query.order_direction,
-      }
+      },
     }));
-
-  } catch (error) {
+  }
+  catch (error) {
     logger.error("Error fetching sync attempts:", error);
     return new Response(JSON.stringify({ error: "Failed to fetch sync attempts" }), { status: 500 });
   }
@@ -179,12 +180,14 @@ function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-  } else if (minutes > 0) {
+  }
+  else if (minutes > 0) {
     return `${minutes}m ${seconds % 60}s`;
-  } else {
+  }
+  else {
     return `${seconds}s`;
   }
-} 
+}

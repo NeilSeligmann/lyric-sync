@@ -1,3 +1,4 @@
+import type { AuthSession } from "$lib/server/auth-service";
 import type { Icon as IconType } from "lucide-svelte";
 import type { z } from "zod";
 
@@ -40,7 +41,6 @@ export interface TestConnectionResponse {
 // server load default types
 export type InferredSelectServerSchema = z.infer<typeof selectServerSchema>;
 export type InferredSelectLibrarySchema = z.infer<typeof selectLibrarySchema>;
-import type { AuthSession } from "$lib/server/auth-service";
 
 export interface ServerLoadValues {
   serverConfiguration: InferredSelectServerSchema | undefined;

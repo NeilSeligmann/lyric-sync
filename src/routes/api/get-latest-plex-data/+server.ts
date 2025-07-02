@@ -4,8 +4,8 @@ import type { InferredSelectLibrarySchema, InferredSelectServerSchema } from "$l
 import { logger } from "$lib/logger";
 import { libraries } from "$lib/schema";
 import db from "$lib/server/db";
-import { eq } from "drizzle-orm";
 import { plexSyncService } from "$lib/server/plex-sync-service";
+import { eq } from "drizzle-orm";
 
 export const GET: RequestHandler = async () => {
   const serverConfiguration: InferredSelectServerSchema | undefined = await db.query.servers.findFirst();
@@ -17,26 +17,29 @@ export const GET: RequestHandler = async () => {
 
     if (currentLibrary) {
       logger.info(`Syncing library content for: ${currentLibrary.title} (${currentLibrary.uuid})`);
-      
+
       try {
         // Use the new Plex sync service to sync library content
-        await plexSyncService.syncPlexData({ 
-          mode: "library_content", 
-          libraryId: currentLibrary.uuid 
+        await plexSyncService.syncPlexData({
+          mode: "library_content",
+          libraryId: currentLibrary.uuid,
         });
-        
+
         logger.info(`Successfully synced library content for: ${currentLibrary.title}`);
-      } catch (error) {
+      }
+      catch (error) {
         logger.error(`Error syncing library content for ${currentLibrary.title}:`, error);
-        return new Response(JSON.stringify({ 
+        return new Response(JSON.stringify({
           error: "Failed to sync library content",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error.message : "Unknown error",
         }), { status: 500 });
       }
-    } else {
+    }
+    else {
       logger.warn("No current library found");
     }
-  } else {
+  }
+  else {
     logger.warn("No server configuration found");
   }
 

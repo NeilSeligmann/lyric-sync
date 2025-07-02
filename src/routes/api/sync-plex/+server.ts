@@ -11,18 +11,18 @@ export const POST: RequestHandler = async ({ request }) => {
 
     await cronService.triggerManualPlexSync(mode || "full", libraryId);
 
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       message: "Plex sync completed successfully",
       mode: mode || "full",
-      libraryId: libraryId || "all"
+      libraryId: libraryId || "all",
     }));
-
-  } catch (error) {
+  }
+  catch (error) {
     logger.error("Error in manual Plex sync endpoint:", error);
-    
-    return new Response(JSON.stringify({ 
+
+    return new Response(JSON.stringify({
       error: "Failed to sync Plex library",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     }), { status: 500 });
   }
-}; 
+};

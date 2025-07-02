@@ -1,4 +1,5 @@
 import type { LRCResponse, SyncTrackResponse } from "$lib/types";
+
 import { LrcLibApi } from "$lib/external-links";
 import { logger } from "$lib/logger";
 import { markTrackAsSyncedWithDetails } from "$lib/server/db/query-utils";
@@ -25,13 +26,13 @@ interface LyricsProcessingParams extends LyricsSearchParams {
 export async function searchLyrics(params: LyricsSearchParams): Promise<LRCResponse | null> {
   const { artistName, trackName, albumName, duration } = params;
   const durationInSeconds = Math.floor(duration / 1000);
-  
+
   // First attempt: search with album name
   const lrcGetUrlWithAlbum: string = `${LrcLibApi}artist_name=${encodeURIComponent(artistName)}&track_name=${encodeURIComponent(trackName)}&album_name=${encodeURIComponent(albumName)}&duration=${durationInSeconds}`;
-  
+
   logger.info(`Searching for lyrics with album name: ${lrcGetUrlWithAlbum}`);
   let lyricResponse: Response = await fetch(lrcGetUrlWithAlbum);
-  
+
   // If first attempt fails, try without album name
   if (!lyricResponse.ok) {
     const lrcGetUrlWithoutAlbum: string = `${LrcLibApi}artist_name=${encodeURIComponent(artistName)}&track_name=${encodeURIComponent(trackName)}&duration=${durationInSeconds}`;
@@ -43,7 +44,7 @@ export async function searchLyrics(params: LyricsSearchParams): Promise<LRCRespo
     const lyricResponseJson: LRCResponse = await lyricResponse.json();
     return lyricResponseJson;
   }
-  
+
   return null;
 }
 
@@ -64,7 +65,7 @@ export async function processLyrics(params: LyricsProcessingParams): Promise<Syn
       artistName: params.artistName,
       trackName: params.trackName,
       albumName: params.albumName,
-      duration: params.duration
+      duration: params.duration,
     });
 
     if (lyricResponseJson) {
@@ -78,51 +79,58 @@ export async function processLyrics(params: LyricsProcessingParams): Promise<Syn
           syncTrackResponse.plainLyrics = false;
           await markTrackAsSyncedWithDetails(params.trackUuid, params.library, true);
           syncTrackResponse.message = `LRC lyrics grabbed for ${params.trackName}`;
-        } catch (error: unknown) {
+        }
+        catch (error: unknown) {
           if (error instanceof Error) {
             syncTrackResponse.message = error.message;
             syncTrackResponse.stack = error.stack;
           }
           await markTrackAsSyncedWithDetails(params.trackUuid, params.library, false, syncTrackResponse.message);
         }
-      } else if (lyricResponseJson.plainLyrics) {
+      }
+      else if (lyricResponseJson.plainLyrics) {
         // Write plain lyrics to TXT file
         const txtPath: string = `${path.dirname(params.trackPath)}/${path.parse(params.trackPath).name}.txt`;
-        
+
         try {
           await fs.writeFile(txtPath, lyricResponseJson.plainLyrics);
           syncTrackResponse.synced = true;
           syncTrackResponse.plainLyrics = true;
           await markTrackAsSyncedWithDetails(params.trackUuid, params.library, true);
           syncTrackResponse.message = `TXT lyrics grabbed for ${params.trackName}`;
-        } catch (error: unknown) {
+        }
+        catch (error: unknown) {
           if (error instanceof Error) {
             syncTrackResponse.message = error.message;
             syncTrackResponse.stack = error.stack;
           }
           await markTrackAsSyncedWithDetails(params.trackUuid, params.library, false, syncTrackResponse.message);
         }
-      } else {
+      }
+      else {
         syncTrackResponse.message = `${params.trackName} has an entry in the lrclib api but no lyrics. Perhaps we can contribute some to lrclib.net?`;
         await markTrackAsSyncedWithDetails(params.trackUuid, params.library, false, syncTrackResponse.message);
       }
-    } else {
+    }
+    else {
       // No lyrics found from the provider
       syncTrackResponse.message = `No lyrics found for ${params.trackName}`;
       logger.info(`No lyrics found for ${params.trackName}`);
       await markTrackAsSyncedWithDetails(params.trackUuid, params.library, false, syncTrackResponse.message);
     }
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     if (error instanceof Error) {
       syncTrackResponse.message = error.message;
       syncTrackResponse.stack = error.stack;
       logger.error(`Error processing track ${params.trackName}: ${error.message}`);
-    } else {
-      syncTrackResponse.message = 'Unknown error occurred';
+    }
+    else {
+      syncTrackResponse.message = "Unknown error occurred";
       logger.error(`Unknown error processing track ${params.trackName}:`, error);
     }
     await markTrackAsSyncedWithDetails(params.trackUuid, params.library, false, syncTrackResponse.message);
   }
 
   return syncTrackResponse;
-} 
+}

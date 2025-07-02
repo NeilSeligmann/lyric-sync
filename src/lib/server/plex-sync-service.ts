@@ -1,16 +1,16 @@
+import type { Directory, Root } from "$lib/plex-api-types/library-sections";
 import type { Metadata as Tracks, Root as TracksResponse } from "$lib/plex-api-types/library-sections-key-all-type-10";
 import type { Metadata as Artists, Root as ArtistsResponse } from "$lib/plex-api-types/library-sections-key-all-type-8";
 import type { Metadata as Albums, Root as AlbumsResponse } from "$lib/plex-api-types/library-sections-key-all-type-9";
-import type { Directory, Root } from "$lib/plex-api-types/library-sections";
-import type { InferredInsertAlbumSchema, InferredInsertArtistSchema, InferredInsertTrackSchema, InferredInsertLibrarySchema, InferredSelectLibrarySchema, InferredSelectServerSchema } from "$lib/types";
+import type { InferredInsertAlbumSchema, InferredInsertArtistSchema, InferredInsertLibrarySchema, InferredInsertTrackSchema, InferredSelectLibrarySchema, InferredSelectServerSchema } from "$lib/types";
 
 import { logger } from "$lib/logger";
 import { albums, artists, libraries, tracks } from "$lib/schema";
 import db from "$lib/server/db";
 import noPlexAlbums from "$lib/server/db/no-plex-seed/albums";
 import noPlexArtists from "$lib/server/db/no-plex-seed/artists";
-import noPlexTracks from "$lib/server/db/no-plex-seed/tracks";
 import noPlexLibraries from "$lib/server/db/no-plex-seed/libraries";
+import noPlexTracks from "$lib/server/db/no-plex-seed/tracks";
 import { getAllArtistsAlbumsTracksInLibrary } from "$lib/server/db/query-utils";
 import env from "$lib/server/env";
 import { eq, sql } from "drizzle-orm";
@@ -58,15 +58,17 @@ export class PlexSyncService {
           await this.syncLibraryContent(serverConfiguration, options.libraryId);
           break;
         case "full":
-        default:
+        default: {
           await this.syncLibraries(serverConfiguration);
           const allLibraries = await db.query.libraries.findMany();
           for (const library of allLibraries) {
             await this.syncLibraryContent(serverConfiguration, library.uuid);
           }
           break;
+        }
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error during Plex sync:", error);
       throw error;
     }
@@ -88,12 +90,13 @@ export class PlexSyncService {
     try {
       // First sync libraries to ensure the library exists in the database
       await this.syncLibraries(serverConfiguration);
-      
+
       // Then sync the specific library's content
       await this.syncLibraryContent(serverConfiguration, libraryId);
-      
+
       logger.info(`Successfully set up new library: ${libraryId}`);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(`Error setting up new library ${libraryId}:`, error);
       throw error;
     }
@@ -129,7 +132,8 @@ export class PlexSyncService {
 
     if (env.NO_PLEX === "true") {
       plexLibraries = noPlexLibraries;
-    } else {
+    }
+    else {
       // Get Plex libraries
       const baseURL: string = `${serverConfiguration?.hostname}:${serverConfiguration?.port}`;
       const plexAuthToken: string = `?X-Plex-Token=${serverConfiguration?.xPlexToken}`;
@@ -154,7 +158,8 @@ export class PlexSyncService {
             key: library.key,
           };
         });
-      } else {
+      }
+      else {
         logger.error("Failed to fetch Plex libraries");
         return;
       }
@@ -165,7 +170,8 @@ export class PlexSyncService {
       const doesUUIDExistInPlexLibraries: InferredInsertLibrarySchema | undefined = plexLibraries.find(plexLibrary => plexLibrary.uuid === databaseLibrary.uuid);
       if (doesUUIDExistInPlexLibraries) {
         return null;
-      } else {
+      }
+      else {
         logger.info(`Removing library ${databaseLibrary.title} (${databaseLibrary.uuid}) - no longer exists in Plex`);
         return db.delete(libraries).where(eq(libraries.uuid, databaseLibrary.uuid));
       }
@@ -232,7 +238,8 @@ export class PlexSyncService {
       plexLibraryArtists = noPlexArtists;
       plexArtistAlbums = noPlexAlbums;
       plexAlbumTracks = noPlexTracks;
-    } else {
+    }
+    else {
       const baseURL: string = `${serverConfiguration?.hostname}:${serverConfiguration?.port}`;
       const plexAuthToken: string = `X-Plex-Token=${serverConfiguration?.xPlexToken}`;
 
@@ -264,12 +271,14 @@ export class PlexSyncService {
           const doesUUIDExistInPlexLibraryArtists: InferredInsertArtistSchema | undefined = plexLibraryArtists.find(plexLibraryArtist => plexLibraryArtist.uuid === libraryArtist.uuid);
           if (doesUUIDExistInPlexLibraryArtists) {
             return null;
-          } else {
+          }
+          else {
             logger.info(`Removing artist ${libraryArtist.title} (${libraryArtist.uuid}) - no longer exists in Plex`);
             return db.delete(artists).where(eq(artists.uuid, libraryArtist.uuid));
           }
         }));
-      } else {
+      }
+      else {
         logger.error(`Failed to fetch artists for library ${libraryUUID}`);
       }
 
@@ -302,12 +311,14 @@ export class PlexSyncService {
           const doesUUIDExistInPlexArtistAlbums: InferredInsertAlbumSchema | undefined = plexArtistAlbums.find(plexArtistAlbum => plexArtistAlbum.uuid === artistAlbum.uuid);
           if (doesUUIDExistInPlexArtistAlbums) {
             return null;
-          } else {
+          }
+          else {
             logger.info(`Removing album ${artistAlbum.title} (${artistAlbum.uuid}) - no longer exists in Plex`);
             return db.delete(albums).where(eq(albums.uuid, artistAlbum.uuid));
           }
         }));
-      } else {
+      }
+      else {
         logger.error(`Failed to fetch albums for library ${libraryUUID}`);
       }
 
@@ -342,12 +353,14 @@ export class PlexSyncService {
           const doesUUIDExistInPlexAlbumTracks: InferredInsertTrackSchema | undefined = plexAlbumTracks.find(plexAlbumTrack => plexAlbumTrack.uuid === albumTrack.uuid);
           if (doesUUIDExistInPlexAlbumTracks) {
             return null;
-          } else {
+          }
+          else {
             logger.info(`Removing track ${albumTrack.title} (${albumTrack.uuid}) - no longer exists in Plex`);
             return db.delete(tracks).where(eq(tracks.uuid, albumTrack.uuid));
           }
         }));
-      } else {
+      }
+      else {
         logger.error(`Failed to fetch tracks for library ${libraryUUID}`);
       }
     }
@@ -414,4 +427,4 @@ export class PlexSyncService {
   }
 }
 
-export const plexSyncService = PlexSyncService.getInstance(); 
+export const plexSyncService = PlexSyncService.getInstance();

@@ -1,4 +1,4 @@
-import type { AlbumWithTrackCount, ServerLoadValues, InferredSelectArtistSchema } from "$lib/types";
+import type { AlbumWithTrackCount, InferredSelectArtistSchema, ServerLoadValues } from "$lib/types";
 
 import { getAllAlbumsFromArtistInLibraryWithTrackCounts, getArtistByUuid } from "$lib/server/db/query-utils";
 

@@ -1,11 +1,13 @@
 <script lang="ts">
-  import type { InferredSelectLibrarySchema } from "$lib/types";
-  import { AppBar, ProgressRing } from "@skeletonlabs/skeleton-svelte";
-  import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Download, XCircle, ChevronDown, ChevronUp, FileText, Music, BarChart3 } from "lucide-svelte";
-  import { onMount, onDestroy } from "svelte";
-  import { invalidateAll } from "$app/navigation";
   import type { SyncProgress } from "$lib/server/sync-progress";
-  import type { SyncTrackResponse } from "$lib/types";
+  import type { InferredSelectLibrarySchema, SyncTrackResponse } from "$lib/types";
+
+  import { ProgressRing } from "@skeletonlabs/skeleton-svelte";
+  import { invalidateAll } from "$app/navigation";
+  import { logger } from "$lib/logger";
+  import { AlertCircle, BarChart3, CheckCircle, ChevronDown, ChevronUp, Clock, Download, Music, Play, RefreshCw, XCircle } from "lucide-svelte";
+  import { onDestroy, onMount } from "svelte";
+
   import SyncSpeedChart from "./SyncSpeedChart.svelte";
 
   const { library }: { library: InferredSelectLibrarySchema } = $props();
@@ -15,7 +17,7 @@
     syncedTracks: 0,
     noLyricsTracks: 0,
     pendingRetryTracks: 0,
-    newTracks: 0
+    newTracks: 0,
   });
 
   let loading = $state(false);
@@ -31,7 +33,7 @@
   let estimatedTimeRemaining = $state(0); // seconds
   let showDetailedResults = $state(false);
   let showSpeedChart = $state(false);
-  
+
   // Speed tracking over time
   let speedData = $state<Array<{ timestamp: number; tracksPerSecond: number }>>([]);
   let lastProcessedCount = $state(0);
@@ -40,11 +42,12 @@
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const formatDuration = (seconds: number): string => {
-    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 60)
+      return `${seconds}s`;
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}m ${secs}s`;
@@ -52,7 +55,8 @@
 
   // Get recent results (last 10)
   const recentResults = $derived.by(() => {
-    if (!progress?.results) return [];
+    if (!progress?.results)
+      return [];
     return (progress.results as SyncTrackResponse[]).slice(-10).reverse(); // Show most recent first
   });
 
@@ -66,31 +70,30 @@
 
     const elapsed = (Date.now() - progress.startTime) / 1000;
     processingSpeed = elapsed > 0 ? progress.processedTracks / elapsed : 0;
-    
+
     const remainingTracks = progress.totalTracks - progress.processedTracks;
     estimatedTimeRemaining = processingSpeed > 0 ? remainingTracks / processingSpeed : 0;
-    
+
     // Track speed data over time
     const now = Date.now();
-    if (progress.status === 'running' && 
-        (progress.processedTracks !== lastProcessedCount || now - lastSpeedUpdate > 5000)) {
-      
+    if (progress.status === "running"
+      && (progress.processedTracks !== lastProcessedCount || now - lastSpeedUpdate > 5000)) {
       // Calculate instantaneous speed (tracks processed since last update)
       if (lastProcessedCount > 0 && lastSpeedUpdate > 0) {
         const timeDiff = (now - lastSpeedUpdate) / 1000;
         const tracksDiff = progress.processedTracks - lastProcessedCount;
         const instantSpeed = timeDiff > 0 ? tracksDiff / timeDiff : 0;
-        
+
         if (instantSpeed > 0) {
           speedData = [...speedData, { timestamp: now, tracksPerSecond: instantSpeed }];
-          
+
           // Keep only last 50 data points to prevent memory issues
           if (speedData.length > 50) {
             speedData = speedData.slice(-50);
           }
         }
       }
-      
+
       lastProcessedCount = progress.processedTracks;
       lastSpeedUpdate = now;
     }
@@ -104,11 +107,12 @@
         // Map backend failedTracks to frontend noLyricsTracks
         stats = {
           ...data.stats,
-          noLyricsTracks: data.stats.failedTracks
+          noLyricsTracks: data.stats.failedTracks,
         };
         lastUpdated = new Date();
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Failed to fetch sync stats:", error);
     }
   }
@@ -119,24 +123,24 @@
       if (response.ok) {
         const data = await response.json();
         progress = data.progress;
-        
+
         if (progress) {
           // Update derived values
           progressPercentage = progress.totalTracks > 0 ? Math.round((progress.processedTracks / progress.totalTracks) * 100) : 0;
-          
+
           const endTime = progress.endTime || Date.now();
           elapsedTime = Math.round((endTime - progress.startTime) / 1000);
-          
+
           // Calculate processing metrics
           calculateProcessingMetrics();
         }
-        
+
         // Stop polling if sync is completed or failed
-        if (progress && (progress.status === 'completed' || progress.status === 'failed')) {
+        if (progress && (progress.status === "completed" || progress.status === "failed")) {
           stopPolling();
-          
+
           // Refresh stats and page after a short delay to show updated sync status
-          if (progress.status === 'completed') {
+          if (progress.status === "completed") {
             setTimeout(() => {
               fetchStats();
               invalidateAll();
@@ -144,7 +148,8 @@
           }
         }
       }
-    } catch (err) {
+    }
+    catch (err) {
       error = "Failed to fetch progress";
       console.error("Error fetching progress:", err);
     }
@@ -168,7 +173,7 @@
     speedData = [];
     lastProcessedCount = 0;
     lastSpeedUpdate = 0;
-    
+
     try {
       const response = await fetch("/api/sync-lyrics/manual-sync", {
         method: "POST",
@@ -180,18 +185,21 @@
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`Manual sync started: ${result.message}`);
+        logger.info(`Manual sync started: ${result.message}`);
         // Start polling for progress
         startPolling();
         // Refresh stats after a short delay
         setTimeout(fetchStats, 2000);
-      } else {
+      }
+      else {
         const error = await response.json();
         console.error("Manual sync failed:", error.error);
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Error triggering manual sync:", error);
-    } finally {
+    }
+    finally {
       loading = false;
     }
   }
@@ -229,21 +237,21 @@
     <div class="mb-6 p-4 bg-surface-50-950 border border-surface-200-800 rounded-lg">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          {#if progress.status === 'running'}
+          {#if progress.status === "running"}
             <Download class="size-5 animate-pulse" />
-          {:else if progress.status === 'completed'}
+          {:else if progress.status === "completed"}
             <CheckCircle class="size-5 text-green-500" />
-          {:else if progress.status === 'failed'}
+          {:else if progress.status === "failed"}
             <XCircle class="size-5 text-red-500" />
           {:else}
             <Clock class="size-5" />
           {/if}
           <h4 class="text-md font-semibold">
-            {#if progress.status === 'running'}
+            {#if progress.status === "running"}
               Syncing Lyrics...
-            {:else if progress.status === 'completed'}
+            {:else if progress.status === "completed"}
               Sync Completed
-            {:else if progress.status === 'failed'}
+            {:else if progress.status === "failed"}
               Sync Failed
             {:else}
               Sync Pending
@@ -272,7 +280,7 @@
       </div>
 
       <!-- Active Tracks Display -->
-      {#if progress.activeTracks && progress.activeTracks.length > 0 && progress.status === 'running'}
+      {#if progress.activeTracks && progress.activeTracks.length > 0 && progress.status === "running"}
         <div class="mb-3">
           <div class="text-sm text-surface-600-400 mb-2">
             Batch {progress.currentBatch} of {progress.totalBatches} - Active Tracks ({progress.activeTracks.length}):
@@ -281,18 +289,18 @@
             {#each progress.activeTracks as track}
               <div class="flex items-center justify-between p-1 bg-surface-100-900 rounded text-xs">
                 <div class="flex items-center gap-2 flex-1 min-w-0">
-                  {#if track.status === 'processing'}
+                  {#if track.status === "processing"}
                     <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  {:else if track.status === 'completed'}
+                  {:else if track.status === "completed"}
                     <CheckCircle class="size-3 text-green-500" />
-                  {:else if track.status === 'failed'}
+                  {:else if track.status === "failed"}
                     <XCircle class="size-3 text-red-500" />
                   {/if}
                   <div class="min-w-0 flex-1">
                     <div class="font-medium truncate">
                       {track.artistName} - {track.trackTitle}
                     </div>
-                    {#if track.status === 'processing'}
+                    {#if track.status === "processing"}
                       <div class="text-xs text-surface-600-400">
                         Processing... ({formatDuration((Date.now() - track.startTime) / 1000)})
                       </div>
@@ -310,7 +318,7 @@
       {/if}
 
       <!-- Processing Metrics -->
-      {#if progress.status === 'running' && processingSpeed > 0}
+      {#if progress.status === "running" && processingSpeed > 0}
         <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
           <div class="flex items-center gap-1">
             <Music class="size-4" />
@@ -321,10 +329,10 @@
             <span>ETA: {formatDuration(estimatedTimeRemaining)}</span>
           </div>
         </div>
-        
+
         <!-- Speed Chart Toggle -->
         <div class="mb-3">
-          <button 
+          <button
             class="btn btn-ghost btn-sm flex items-center gap-1"
             onclick={() => showSpeedChart = !showSpeedChart}
           >
@@ -336,14 +344,14 @@
             {/if}
           </button>
         </div>
-        
+
         <!-- Speed Chart -->
         {#if showSpeedChart && speedData.length > 0}
           <div class="mb-3">
             <SyncSpeedChart data={speedData} height="200px" />
           </div>
         {/if}
-        
+
         <!-- Batch Progress -->
         {#if progress.totalBatches > 1}
           <div class="mb-3 text-sm">
@@ -372,7 +380,7 @@
       <!-- Detailed Results Toggle -->
       {#if progress.results && progress.results.length > 0}
         <div class="mt-3">
-          <button 
+          <button
             class="btn btn-ghost btn-sm flex items-center gap-1"
             onclick={() => showDetailedResults = !showDetailedResults}
           >
@@ -398,7 +406,7 @@
                     {/if}
                     <div class="min-w-0 flex-1">
                       <div class="font-medium truncate">
-                        {(result as SyncTrackResponse).message || 'Track processed'}
+                        {(result as SyncTrackResponse).message || "Track processed"}
                       </div>
                       {#if (result as SyncTrackResponse).plainLyrics}
                         <div class="text-xs text-surface-600-400">Plain lyrics</div>
@@ -414,11 +422,11 @@
         {/if}
       {/if}
 
-      {#if progress.status === 'completed'}
+      {#if progress.status === "completed"}
         <div class="mt-3 p-2 bg-green-100 text-green-800 rounded text-sm">
           Successfully synced {progress.syncedTracks} tracks. {progress.failedTracks} tracks unavailable.
         </div>
-        
+
         <!-- Show final speed chart for completed sync -->
         {#if speedData.length > 0}
           <div class="mt-3">
@@ -426,7 +434,7 @@
             <SyncSpeedChart data={speedData} height="200px" />
           </div>
         {/if}
-      {:else if progress.status === 'failed'}
+      {:else if progress.status === "failed"}
         <div class="mt-3 p-2 bg-red-100 text-red-800 rounded text-sm">
           Sync operation failed. Please try again.
         </div>
@@ -461,7 +469,7 @@
       <div class="text-2xl font-bold text-green-500">{stats.syncedTracks}</div>
       <div class="text-xs text-surface-600-400">Synced</div>
     </div>
-    
+
     <div class="text-center">
       <div class="flex items-center justify-center mb-1">
         <AlertCircle class="size-5 text-red-500" />
@@ -469,7 +477,7 @@
       <div class="text-2xl font-bold text-red-500">{stats.noLyricsTracks}</div>
       <div class="text-xs text-surface-600-400">No Lyrics</div>
     </div>
-    
+
     <div class="text-center">
       <div class="flex items-center justify-center mb-1">
         <Clock class="size-5 text-yellow-500" />
@@ -477,7 +485,7 @@
       <div class="text-2xl font-bold text-yellow-500">{stats.pendingRetryTracks}</div>
       <div class="text-xs text-surface-600-400">Pending Retry</div>
     </div>
-    
+
     <div class="text-center">
       <div class="flex items-center justify-center mb-1">
         <Play class="size-5 text-blue-500" />
@@ -491,27 +499,27 @@
   <div class="space-y-2">
     <h4 class="text-sm font-medium">Manual Sync</h4>
     <div class="flex flex-wrap gap-2">
-      <button 
-        class="btn btn-filled btn-sm" 
-        disabled={loading || stats.pendingRetryTracks === 0 || progress?.status === 'running'}
+      <button
+        class="btn btn-filled btn-sm"
+        disabled={loading || stats.pendingRetryTracks === 0 || progress?.status === "running"}
         onclick={() => triggerManualSync("retry")}
       >
         <RefreshCw class="size-4 mr-1" />
         Retry Unavailable ({stats.pendingRetryTracks})
       </button>
-      
-      <button 
-        class="btn btn-filled btn-sm" 
-        disabled={loading || stats.newTracks === 0 || progress?.status === 'running'}
+
+      <button
+        class="btn btn-filled btn-sm"
+        disabled={loading || stats.newTracks === 0 || progress?.status === "running"}
         onclick={() => triggerManualSync("new")}
       >
         <Play class="size-4 mr-1" />
         Sync New ({stats.newTracks})
       </button>
-      
-      <button 
-        class="btn btn-filled btn-sm" 
-        disabled={loading || progress?.status === 'running'}
+
+      <button
+        class="btn btn-filled btn-sm"
+        disabled={loading || progress?.status === "running"}
         onclick={() => triggerManualSync("comprehensive")}
       >
         <RefreshCw class="size-4 mr-1" />
@@ -525,4 +533,4 @@
       Last updated: {lastUpdated.toLocaleTimeString()}
     </div>
   {/if}
-</div> 
+</div>

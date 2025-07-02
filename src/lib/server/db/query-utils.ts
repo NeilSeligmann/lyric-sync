@@ -179,11 +179,7 @@ export async function getUnsyncedTracksInLibrary(libraryUUID: string): Promise<A
       createdAt: albums.createdAt,
       updatedAt: albums.updatedAt,
     },
-  }).from(tracks)
-    .innerJoin(artists, eq(tracks.artist, artists.uuid))
-    .innerJoin(albums, eq(tracks.album, albums.uuid))
-    .where(and(eq(tracks.library, libraryUUID), eq(tracks.synced, false)))
-    .orderBy(asc(tracks.title));
+  }).from(tracks).innerJoin(artists, eq(tracks.artist, artists.uuid)).innerJoin(albums, eq(tracks.album, albums.uuid)).where(and(eq(tracks.library, libraryUUID), eq(tracks.synced, false))).orderBy(asc(tracks.title));
 
   logger.info(`returning unsynced tracks in library ${libraryUUID}, count: ${returnedTracks.length}`);
   logger.debug(returnedTracks);
@@ -194,43 +190,43 @@ export async function getUnsyncedTracksInLibrary(libraryUUID: string): Promise<A
 // New functions for enhanced sync tracking
 
 export async function markTrackAsSyncedWithDetails(
-  trackUUID: string, 
-  libraryUUID: string, 
-  success: boolean = true, 
-  failureReason?: string
+  trackUUID: string,
+  libraryUUID: string,
+  success: boolean = true,
+  failureReason?: string,
 ): Promise<Array<InferredSelectTrackSchema>> {
   // Validate inputs
   if (!trackUUID || !libraryUUID) {
     logger.error(`Invalid parameters: trackUUID=${trackUUID}, libraryUUID=${libraryUUID}`);
-    throw new Error('Invalid track UUID or library UUID provided');
+    throw new Error("Invalid track UUID or library UUID provided");
   }
 
   const now = new Date();
-  
+
   if (!success && failureReason) {
     // First, get the current retry count to calculate the next retry time
     const currentTrack = await db.select({ retryCount: tracks.retryCount })
       .from(tracks)
       .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
       .limit(1);
-    
+
     const currentRetryCount = currentTrack[0]?.retryCount ?? 0;
     const newRetryCount = currentRetryCount + 1;
-    
+
     // Calculate retry delay with exponential backoff (max 24 hours)
-    const retryDelay = Math.min(Math.pow(2, newRetryCount) * 60 * 60 * 1000, 24 * 60 * 60 * 1000);
+    const retryDelay = Math.min(2 ** newRetryCount * 60 * 60 * 1000, 24 * 60 * 60 * 1000);
     const nextRetryAt = new Date(now.getTime() + retryDelay);
-    
+
     const updateData = {
       synced: false,
       lastSyncAttempt: now,
       syncFailureReason: failureReason,
       retryCount: newRetryCount,
-      nextRetryAt: nextRetryAt
+      nextRetryAt,
     };
 
     logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as FAILED (retry ${newRetryCount})`);
-    
+
     const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
       .set(updateData)
       .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
@@ -242,18 +238,19 @@ export async function markTrackAsSyncedWithDetails(
     }
 
     return returnedTrack;
-  } else {
+  }
+  else {
     // Success case - reset retry count and clear failure info
     const updateData = {
       synced: true,
       lastSyncAttempt: now,
       syncFailureReason: null,
       retryCount: 0,
-      nextRetryAt: null
+      nextRetryAt: null,
     };
 
     logger.info(`Marking track: ${trackUUID} in library: ${libraryUUID} as SYNCED`);
-    
+
     const returnedTrack: Array<InferredSelectTrackSchema> | undefined = await db.update(tracks)
       .set(updateData)
       .where(and(eq(tracks.uuid, trackUUID), eq(tracks.library, libraryUUID)))
@@ -270,7 +267,7 @@ export async function markTrackAsSyncedWithDetails(
 
 export async function getFailedTracksReadyForRetry(libraryUUID: string): Promise<Array<InferredSelectTrackSchema & { artistInfo: InferredSelectArtistSchema; albumInfo: InferredSelectAlbumSchema }>> {
   const now = new Date();
-  
+
   const returnedTracks = await db.select({
     ...getTableColumns(tracks),
     artistInfo: {
@@ -296,21 +293,17 @@ export async function getFailedTracksReadyForRetry(libraryUUID: string): Promise
       createdAt: albums.createdAt,
       updatedAt: albums.updatedAt,
     },
-  }).from(tracks)
-    .innerJoin(artists, eq(tracks.artist, artists.uuid))
-    .innerJoin(albums, eq(tracks.album, albums.uuid))
-    .where(
-      and(
-        eq(tracks.library, libraryUUID),
-        eq(tracks.synced, false),
-        or(
-          sql`${tracks.nextRetryAt} IS NULL`,
-          sql`${tracks.nextRetryAt} <= ${now.getTime()}`
-        ),
-        sql`${tracks.retryCount} < 5` // Max 5 retries
-      )
-    )
-    .orderBy(asc(tracks.title));
+  }).from(tracks).innerJoin(artists, eq(tracks.artist, artists.uuid)).innerJoin(albums, eq(tracks.album, albums.uuid)).where(
+    and(
+      eq(tracks.library, libraryUUID),
+      eq(tracks.synced, false),
+      or(
+        sql`${tracks.nextRetryAt} IS NULL`,
+        sql`${tracks.nextRetryAt} <= ${now.getTime()}`,
+      ),
+      sql`${tracks.retryCount} < 5`, // Max 5 retries
+    ),
+  ).orderBy(asc(tracks.title));
 
   logger.info(`returning failed tracks ready for retry in library ${libraryUUID}, count: ${returnedTracks.length}`);
   logger.debug(returnedTracks);
@@ -344,17 +337,13 @@ export async function getNewTracksForSync(libraryUUID: string): Promise<Array<In
       createdAt: albums.createdAt,
       updatedAt: albums.updatedAt,
     },
-  }).from(tracks)
-    .innerJoin(artists, eq(tracks.artist, artists.uuid))
-    .innerJoin(albums, eq(tracks.album, albums.uuid))
-    .where(
-      and(
-        eq(tracks.library, libraryUUID),
-        eq(tracks.synced, false),
-        sql`${tracks.lastSyncAttempt} IS NULL` // Never attempted before
-      )
-    )
-    .orderBy(asc(tracks.title));
+  }).from(tracks).innerJoin(artists, eq(tracks.artist, artists.uuid)).innerJoin(albums, eq(tracks.album, albums.uuid)).where(
+    and(
+      eq(tracks.library, libraryUUID),
+      eq(tracks.synced, false),
+      sql`${tracks.lastSyncAttempt} IS NULL`, // Never attempted before
+    ),
+  ).orderBy(asc(tracks.title));
 
   logger.info(`returning new tracks for sync in library ${libraryUUID}, count: ${returnedTracks.length}`);
   logger.debug(returnedTracks);
@@ -370,19 +359,18 @@ export async function getSyncStats(libraryUUID: string): Promise<{
   newTracks: number;
 }> {
   const now = new Date();
-  
+
   const stats = await db.select({
     totalTracks: sql<number>`COUNT(*)`,
     syncedTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 1 THEN 1 ELSE 0 END)`,
     failedTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.lastSyncAttempt} IS NOT NULL THEN 1 ELSE 0 END)`,
     pendingRetryTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.nextRetryAt} <= ${now.getTime()} AND ${tracks.retryCount} < 5 THEN 1 ELSE 0 END)`,
     newTracks: sql<number>`SUM(CASE WHEN ${tracks.synced} = 0 AND ${tracks.lastSyncAttempt} IS NULL THEN 1 ELSE 0 END)`,
-  }).from(tracks)
-    .where(eq(tracks.library, libraryUUID));
+  }).from(tracks).where(eq(tracks.library, libraryUUID));
 
   const result = stats[0];
   logger.info(`Sync stats for library ${libraryUUID}:`, result);
-  
+
   return result;
 };
 

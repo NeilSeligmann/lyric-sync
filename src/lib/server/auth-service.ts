@@ -1,5 +1,7 @@
-import env from "./env";
 import { logger } from "$lib/logger";
+import { Buffer } from "node:buffer";
+
+import env from "./env";
 
 export interface AuthSession {
   authenticated: boolean;
@@ -31,7 +33,7 @@ class AuthService {
     }
 
     const authHeader = request.headers.get("authorization");
-    
+
     if (!authHeader || !authHeader.startsWith("Basic ")) {
       return { authenticated: false };
     }
@@ -44,7 +46,8 @@ class AuthService {
       if (this.validateCredentials(username, password)) {
         return { authenticated: true, username };
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error("Error parsing Basic Auth credentials:", error);
     }
 
@@ -58,7 +61,7 @@ class AuthService {
     return new Response("Authentication required", {
       status: 401,
       headers: {
-        "WWW-Authenticate": 'Basic realm="Lyric Sync"',
+        "WWW-Authenticate": "Basic realm=\"Lyric Sync\"",
         "Content-Type": "text/plain",
       },
     });
@@ -74,7 +77,7 @@ class AuthService {
 
     // Skip auth for static assets and API endpoints that might be called by the frontend
     const path = url.pathname;
-    
+
     // Allow static assets
     if (path.startsWith("/static/") || path.startsWith("/favicon")) {
       return false;
@@ -89,4 +92,4 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService(); 
+export const authService = new AuthService();

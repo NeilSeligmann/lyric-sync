@@ -20,8 +20,6 @@
     serverConfiguration: InferredSelectServerSchema | undefined;
   } = $props();
 
-  const baseURL: string = `${serverConfiguration?.hostname}:${serverConfiguration?.port}`;
-  const plexAuthToken: string = `?X-Plex-Token=${serverConfiguration?.xPlexToken}`;
   let hovered: boolean = $state(false);
   let loading: boolean = $state(true);
 

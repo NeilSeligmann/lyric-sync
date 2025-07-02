@@ -16,9 +16,9 @@ export const POST: RequestHandler = async ({ request }) => {
     // Check if there's already a sync in progress for this library
     const existingProgress = syncProgressManager.getProgressByLibrary(library);
     if (existingProgress) {
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         error: "A sync operation is already in progress for this library",
-        progressId: existingProgress.id 
+        progressId: existingProgress.id,
       }), { status: 409 });
     }
 
@@ -27,29 +27,29 @@ export const POST: RequestHandler = async ({ request }) => {
     const totalTracks = unsyncedTracks.length;
 
     if (totalTracks === 0) {
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         message: "No unsynced tracks found",
-        summary: { totalTracks: 0, syncedTracks: 0, failedTracks: 0 }
+        summary: { totalTracks: 0, syncedTracks: 0, failedTracks: 0 },
       }));
     }
 
     // Create progress tracking
     const progressId = syncProgressManager.createProgress(library, totalTracks);
-    syncProgressManager.updateProgress(progressId, { status: 'running' });
+    syncProgressManager.updateProgress(progressId, { status: "running" });
 
     logger.info(`Starting bulk sync for ${totalTracks} tracks in library ${library} with progress ID: ${progressId}`);
 
     // Start the sync process asynchronously using the new sync service
     processSyncTracks(progressId, unsyncedTracks, library, { mode: "bulk" });
 
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       message: "Bulk sync started",
       progressId,
-      totalTracks
+      totalTracks,
     }));
-
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Error starting bulk sync for library ${library}:`, error);
     return new Response(JSON.stringify({ error: "Failed to start sync" }), { status: 500 });
   }
-}; 
+};
